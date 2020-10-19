@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    container_name: open-360-web-server
+    links:
+      - session-redis
+    environment:
+      - PORT=80
+    ports:
+    - "80:80"
+    - "443:443"
+    networks:
+      session-network:
+
+  session-redis:
+    image: redis
+    container_name: open360-redis-session
+    hostname: open360-redis-session
+    ports:
+    - "6379:6379"
+    volumes:
+      - "/usr/src/open360/session_data:/data"
+      - "/usr/src/open360/redis.conf:/usr/local/etc/redis/redis.conf"
+    networks:
+      session-network:
+
+networks:
+  session-network:
