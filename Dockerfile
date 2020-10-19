@@ -7,8 +7,8 @@ WORKDIR /app
 COPY package.json .
 RUN npm install
 COPY main.js .
-COPY public .
-COPY core .
+COPY public ./public
+COPY core ./core
 
 EXPOSE $PORT
 EXPOSE 443

@@ -6,6 +6,7 @@ services:
     container_name: open-360-web-server
     links:
       - session-redis
+      - mongodb
     environment:
       - PORT=80
     ports:
@@ -13,6 +14,7 @@ services:
     - "443:443"
     networks:
       session-network:
+      mongodb-network:
 
   session-redis:
     image: redis
@@ -26,5 +28,19 @@ services:
     networks:
       session-network:
 
+
+
+  mongodb:
+    image: mongo
+    container_name: open360-mongodb
+    hostname: open360-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+    - "/usr/src/open360/mongo:/data/db"
+    networks:
+      mongodb-network:
+
 networks:
   session-network:
+  mongodb-network:

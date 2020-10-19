@@ -16,6 +16,12 @@ let RedisClient = redis.createClient({
    port: 6379
 });
 
+// Require our core library
+let core = require("./core");
+
+// Initialize the Database Access module
+core.DatabaseAccess.init();
+
 // Tell the server what port it should use. 4000 is for testing purposes
 const PORT = parseInt(process.env.PORT) || 4000;
 
@@ -31,6 +37,7 @@ const sessionMiddleware = session({
       prefix: "sess:"
    })
 });
+app.use(sessionMiddleware)
 
 // Set up the parser for requests that are urlencoded (for data in GET requests)
 app.use(require('body-parser').urlencoded({
@@ -44,7 +51,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 // Home page request
 app.get('/', function (req, res){
-   res.send(req.body);
+   res.send("Hello World!");
 });
 
 // SERVER LISTEN
