@@ -12,46 +12,62 @@ DatabaseAccess.moduleInfo.description = "This module defines the Database codeba
 // Database Access Variables
 DatabaseAccess.url = 'mongodb://open360-mongodb:27017';
 DatabaseAccess.dbName = 'user_data';
-DatabaseAccess.MongoClient = null;
-DatabaseAccess.db = null;
-DatabaseAccess.users = null;
 
-// Define the initialization method
-DatabaseAccess.init = function (){
-    // Check if it's already initialized
-    if (DatabaseAccess.MongoClient != null && DatabaseAccess.db != null) return true;
-    // Connect to the database
-    MongoDB.connect(DatabaseAccess.url, function (err, client) {
-        if (err) console.error(err);
-        // Set the database client
-        DatabaseAccess.MongoClient = client;
-        // Set what database the client should access
-        DatabaseAccess.db = DatabaseAccess.MongoClient.db(DatabaseAccess.dbName);
-        // Define the user database collection
-        DatabaseAccess.users = DatabaseAccess.db.collection('users');
-    });
+DatabaseAccess.getCollection = function (collectionName, callback){
+    // Set the database client
+    let MongoClient = new MongoDB(DatabaseAccess.url);
+    // Try to connect to the database
+    try {
+        // Connect to the database
+        MongoClient.connect(function (err, client) {
+            if (err) console.error(err);
+            // Set the MongoClient to the connected client which is basically the same but they are currently living in
+            // different places in memory so let's move them into the same household
+            MongoClient = client;
+            // Set what database the client should access
+            let db = MongoClient.db(DatabaseAccess.dbName);
+            // Define the user database collection
+            let collection = db.collection(collectionName);
+            callback(MongoClient, collection)
+        });
+    } finally {
+        MongoClient.close();
+    }
 }
 
 // Define the find section of Database Access
 DatabaseAccess.find = {};
 
-DatabaseAccess.find.user = function (userId){
-    // Check if the user collection has been initialized
-    if (DatabaseAccess.users === null) return false;
-    // Get the user collection
-    let users = DatabaseAccess.users;
+/**
+ * Find user by userId
+ * @param userId - The userId to look for
+ * @param callback - The callback function
+ * @returns {boolean} - Indicates if the user has been found
+ */
+DatabaseAccess.find.userInfo = function (userId, callback){
+    // Get the collection
+    DatabaseAccess.getCollection("users", function (client, usersCollection){
+        // Set the query
+        let query = { userId: userId };
+        // Execute the query
+        let result = usersCollection.findOne(query);
+        // Pass the result to the callback function
+        callback(result);
+    });
 }
 
-// Define the debug object
-DatabaseAccess.debug = {};
-
-// Test insert (it works by the way)
-DatabaseAccess.debug.testInsert = function (){
-    DatabaseAccess.users.insert({a: 1});
-}
-
-DatabaseAccess.debug.users = function (){
-    return DatabaseAccess.users.toString();
+DatabaseAccess.find.userByUsername = function (username, callback){
+    // Get the collection
+    DatabaseAccess.getCollection("users", function (client, usersCollection){
+        // Set the query
+        let query = { username: username };
+        // Execute the query
+        usersCollection.findOne(query, function (err, result) {
+            if (err) console.error(err);
+            // Pass the result to the callback function
+            callback(result);
+        });
+    });
 }
 
 // Export the DatabaseAccess object
