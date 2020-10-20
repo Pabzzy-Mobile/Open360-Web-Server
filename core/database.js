@@ -1,5 +1,8 @@
 // Require the MongoDB driver
-const MongoDB = require('mongodb').MongoClient;
+const {MongoClient, Collection} = require('mongodb');
+const MongoDB = MongoClient;
+// Require the Util module
+const {UserData, UserDataTypes} = require('./util');
 
 // Define the database access object
 let DatabaseAccess = {};
@@ -13,6 +16,21 @@ DatabaseAccess.moduleInfo.description = "This module defines the Database codeba
 DatabaseAccess.url = 'mongodb://open360-mongodb:27017';
 DatabaseAccess.dbName = 'user_data';
 
+// TODO: MORE REFACTORING LIKE getCollection BUT FOR GENERIC QUERIES, THEY ARE GETTING ANNOYING TO WRITE OUT
+
+/**
+ * @callback collectionRetrievedCallback
+ * @param {MongoClient} client
+ * @param {Collection} collection
+ */
+
+/**
+ * @summary Retrieves a collection from the database and passes it to the callback
+ * Makes a connection to the database and retrieves the collection to use in the callback function.
+ * After the callback finishes, the connection is closed.
+ * @param {string} collectionName
+ * @param {collectionRetrievedCallback} callback
+ */
 DatabaseAccess.getCollection = function (collectionName, callback){
     // Set the database client
     let MongoClient = new MongoDB(DatabaseAccess.url);
@@ -28,7 +46,7 @@ DatabaseAccess.getCollection = function (collectionName, callback){
             let db = MongoClient.db(DatabaseAccess.dbName);
             // Define the user database collection
             let collection = db.collection(collectionName);
-            callback(MongoClient, collection)
+            callback(MongoClient, collection);
         });
     } finally {
         MongoClient.close();
@@ -36,29 +54,67 @@ DatabaseAccess.getCollection = function (collectionName, callback){
 }
 
 // Define the find section of Database Access
+/**
+ * This object contains all the methods to read from the database.
+ * @type {Object}
+ */
 DatabaseAccess.find = {};
 
 /**
- * Find user by userId
- * @param userId - The userId to look for
- * @param callback - The callback function
- * @returns {boolean} - Indicates if the user has been found
+ * @callback userFindCallback
+ * @param {Util.UserData} result
  */
-DatabaseAccess.find.userInfo = function (userId, callback){
+
+/**
+ * Find user details by userId
+ * @param userId {string} - The userId to look for
+ * @param callback {userFindCallback} - The callback function
+ */
+DatabaseAccess.find.userDetails = function (userId, callback){
     // Get the collection
-    DatabaseAccess.getCollection("users", function (client, usersCollection){
+    DatabaseAccess.getCollection("user_details", function (client, usersCollection){
         // Set the query
         let query = { userId: userId };
         // Execute the query
         let result = usersCollection.findOne(query);
+        // Cast the result to a UserData type
+        let userData = Object.assign(new UserData(), result)
+        // Set the data type to user auth
+        userData.type = UserDataTypes.JUST_DETAILS;
         // Pass the result to the callback function
         callback(result);
     });
 }
 
+/**
+ * Find user auth by userId
+ * @param userId {string} - The userId to look for
+ * @param callback {userFindCallback} - The callback function
+ */
+DatabaseAccess.find.userAuth = function (userId, callback){
+    // Get the collection
+    DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
+        // Set the query
+        let query = { userId: userId };
+        // Execute the query
+        let result = usersCollection.findOne(query);
+        // Cast the result to a UserData type
+        let userData = Object.assign(new UserData(), result)
+        // Set the data type to user auth
+        userData.type = UserDataTypes.JUST_AUTH;
+        // Pass the result to the callback function
+        callback(result);
+    });
+}
+
+/**
+ * Find a user by username
+ * @param username {string} - The username to look for
+ * @param callback {userFindCallback} - The callback function
+ */
 DatabaseAccess.find.userByUsername = function (username, callback){
     // Get the collection
-    DatabaseAccess.getCollection("users", function (client, usersCollection){
+    DatabaseAccess.getCollection("user_info", function (client, usersCollection){
         // Set the query
         let query = { username: username };
         // Execute the query
@@ -69,6 +125,103 @@ DatabaseAccess.find.userByUsername = function (username, callback){
         });
     });
 }
+
+/**
+ * Contains all the write queries to the database
+ * @type {Object}
+ */
+DatabaseAccess.write = {}
+
+/**
+ * @callback newUserCallback
+ * @param {Error} err
+ */
+
+/**
+ *
+ * @param userData {Util.UserData}
+ * @param callback {newUserCallback}
+ */
+DatabaseAccess.write.addUserAuth = function (userData, callback){
+    if (!userData.type === UserDataTypes.JUST_AUTH) {
+        callback(new Error("User was not of type 'JUST_AUTH'"))
+    }
+    // Get the collection
+    DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
+        // Set the user doc to add
+        let doc = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: true };
+        // Insert the user into the collection
+        // TODO: ADD COLLISION CHECKING
+        usersCollection.insertOne(doc);
+    });
+}
+
+/**
+ *
+ * @param {Util.UserData} userData
+ * @param callback
+ */
+DatabaseAccess.write.updateUserAuth = function (userData, callback){
+    if (!userData.type === UserDataTypes.JUST_AUTH) {
+        callback(new Error("User was not of type 'JUST_AUTH'"))
+    }
+    DatabaseAccess.getCollection("user_auth", function (client, collection){
+        // Set the filter
+        let filter = {userId: userData.userId};
+        // Define the replacing document
+        let replacingUser = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: userData.active};
+        // Run the replace query
+        collection.replaceOne(filter, replacingUser);
+        // This function doesn't expressively need a callback
+        if (callback != null && typeof callback == "function") callback();
+    });
+}
+
+/**
+ * Set the active status of a user account by user Id
+ * @param userId {string} - User Id to look for
+ * @param active {boolean} - Account activated status
+ * @param callback
+ */
+DatabaseAccess.write.setActiveUserAuth = function (userId, active, callback){
+    DatabaseAccess.find.userAuth(userId, function (userData) {
+        if (userData == null) {
+            callback(new Error("User to deactivate not found"));
+            return false;
+        }
+        userData.active = active;
+        DatabaseAccess.write.updateUserAuth(userData);
+    });
+}
+
+/**
+ * Removes a user's account from the Auth collection by userId
+ * @param userId {string}
+ * @param callback
+ */
+DatabaseAccess.write.removeUserAuth = function (userId, callback) {
+    DatabaseAccess.find.userAuth(userId, function (userData) {
+        if (userData == null) {
+            callback(new Error("User to delete not found"));
+            return false;
+        }
+        // Don't delete if the account has not been deactivated yet
+        if (userData.active){
+            callback(new Error("This account is still active, deletion failed"));
+            return false;
+        }
+        DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
+            // Set the filter
+            let filter = {userId: userId};
+            // Execute order 66
+            usersCollection.removeOne(filter);
+            // Call the callback
+            callback();
+            return true;
+        })
+    });
+}
+
 
 // Export the DatabaseAccess object
 module.exports = DatabaseAccess;

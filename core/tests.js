@@ -1,3 +1,4 @@
+const Util = require("./util");
 const DatabaseAccess = require("./database.js");
 
 // Define the Tests module
@@ -8,7 +9,12 @@ Tests.moduleInfo = {};
 Tests.moduleInfo.name = "Server Tests";
 Tests.moduleInfo.description = "This module tests the various components of Open360";
 
-// Define the run tests function
+/**
+ * @summary Run the server tests.
+ *
+ * These include, but are not limited to:
+ * - Database Codebase Tests
+ */
 Tests.run = function () {
     // Array contains the results of all the Database Tests
     let databaseTests = [];
@@ -50,18 +56,24 @@ Tests.DatabaseTests = {};
 Tests.DatabaseTests.testInsertDelete = function (){
     let insertPassed = true;
     let deletePassed = true;
-    DatabaseAccess.getCollection("users", function (client, usersCollection) {
-        // Test user insertion
-        usersCollection.insertOne({userId: -1100, username: "jonny554"})
+    let userToTest = new Util.UserData();
+    userToTest.type = Util.UserDataTypes.JUST_AUTH
+    userToTest.userId = "c9dc993100e7fc30dbc0769deb19dba15bfbc5bf";
+    userToTest.username = "Jonny554";
+    userToTest.password = "f77d7271e109fc01ea3bee60052b9e671886cadebec3a6aea3f1a2b1c42014b8"
+    userToTest.salt = "6RtAMLCs";
+    DatabaseAccess.write.addUserAuth(userToTest, function (err){
+        if (err) console.error(err);
     });
-    DatabaseAccess.find.userInfo(-1100, function (user){
+    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (user){
         // Check if the user can be found
-        insertPassed = user.userId === -1100
+        insertPassed = user.userId === userToTest.userId;
+        insertPassed &= user.username === userToTest.username;
     });
-    DatabaseAccess.getCollection("users", function (client, usersCollection){
-        usersCollection.deleteOne({userId: -1100, username: "jonny554"});
+    DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
+        usersCollection.deleteOne({userId: "c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", username: "jonny554"});
     });
-    DatabaseAccess.find.userInfo(-1100, function (user){
+    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (user){
         // Check if the user can be found
         deletePassed = user === null
     });
