@@ -17,10 +17,7 @@ let RedisClient = redis.createClient({
 });
 
 // Require our core library
-let core = require("./core");
-
-// Initialize the Database Access module
-core.DatabaseAccess.init();
+let { DatabaseAccess, Tests} = require("./core");
 
 // Tell the server what port it should use. 4000 is for testing purposes
 const PORT = parseInt(process.env.PORT) || 4000;
@@ -53,6 +50,26 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.get('/', function (req, res){
    res.send("Hello World!");
 });
+
+// Profile page requests
+app.get('/profile', function (req, res){
+   if (req.query.u != null) {
+      // Find the user
+      DatabaseAccess.find.userByUsername(req.body.u, function (user) {
+         if (user === {} || user === null) {
+            res.send("User not found");
+            return;
+         }
+         // Send info back
+         res.send(req.query.u + " corresponded with " + (JSON.stringify(user) || null));
+      });
+   } else {
+      res.send('Search for a user using /profile?u=&lt;username&gt;\nThe current query is ' + JSON.stringify(req.query));
+   }
+});
+
+// RUN SERVER TESTS BEFORE STARTING
+Tests.run();
 
 // SERVER LISTEN
 

@@ -4,6 +4,7 @@ services:
   web:
     build: .
     container_name: open-360-web-server
+    restart: on-failure
     links:
       - session-redis
       - mongodb
