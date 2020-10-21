@@ -1,6 +1,5 @@
 // Require the MongoDB driver
 const {MongoClient, Collection} = require('mongodb');
-const MongoDB = MongoClient;
 // Require the Util module
 const {UserData, UserDataTypes} = require('./util');
 
@@ -15,8 +14,6 @@ DatabaseAccess.moduleInfo.description = "This module defines the Database codeba
 // Database Access Variables
 DatabaseAccess.url = 'mongodb://open360-mongodb:27017';
 DatabaseAccess.dbName = 'user_data';
-
-// TODO: MORE REFACTORING LIKE getCollection BUT FOR GENERIC QUERIES, THEY ARE GETTING ANNOYING TO WRITE OUT
 
 /**
  * @callback collectionRetrievedCallback
@@ -33,23 +30,283 @@ DatabaseAccess.dbName = 'user_data';
  */
 DatabaseAccess.getCollection = function (collectionName, callback){
     // Set the database client
-    let MongoClient = new MongoDB(DatabaseAccess.url);
+    let mongoClient = new MongoClient(DatabaseAccess.url);
     // Try to connect to the database
     try {
         // Connect to the database
-        MongoClient.connect(function (err, client) {
+        mongoClient.connect(function (err, client) {
             if (err) console.error(err);
             // Set the MongoClient to the connected client which is basically the same but they are currently living in
             // different places in memory so let's move them into the same household
-            MongoClient = client;
+            mongoClient = client;
             // Set what database the client should access
-            let db = MongoClient.db(DatabaseAccess.dbName);
+            let db = mongoClient.db(DatabaseAccess.dbName);
             // Define the user database collection
             let collection = db.collection(collectionName);
-            callback(MongoClient, collection);
+            callback(mongoClient, collection);
         });
     } finally {
-        MongoClient.close();
+        mongoClient.close();
+    }
+}
+
+/**
+ * @callback retrieveDocCallback
+ * @param {Error} err
+ * @param {Object} result
+ */
+
+/**
+ * Retrieves one document in the collection using the query
+ * @param {string} collectionName
+ * @param {Object} query
+ * @param {retrieveDocCallback} [callback]
+ * @returns {Object} - If no callback is provided, it will return the result of the transaction
+ */
+DatabaseAccess.retrieveDocOne = function (collectionName, query, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Replace the document according to the filter
+            let result = collection.findOne(query);
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null, result);
+            return result;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err, null);
+        return null;
+    }
+}
+
+/**
+ * Retrieves documents in the collection using the query
+ * @param {string} collectionName
+ * @param {Object} query
+ * @param {retrieveDocCallback} [callback]
+ * @returns {Object} - If no callback is provided, it will return the result of the transaction
+ */
+DatabaseAccess.retrieveDocMany = function (collectionName, query, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            let resultArray = [];
+            // Replace the document according to the filter
+            let resultCursor = collection.find(query);
+            resultCursor.forEach(function (element) {
+                resultArray.push(element);
+            });
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null, resultArray);
+            return resultArray;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err, null);
+        return null;
+    }
+}
+
+/**
+ * @callback updateDocCallback
+ * @param {Error} err
+ */
+
+/**
+ * Updates one document in the collection using the filter
+ * @param {string} collectionName
+ * @param {Object} document
+ * @param {Object} filter
+ * @param {updateDocCallback} [callback]
+ * @returns {boolean} - If no callback is provided it will return true if he operation was successful
+ */
+DatabaseAccess.updateDocOne = function (collectionName, document, filter, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Replace the document according to the filter
+            collection.replaceOne(filter, document);
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null);
+            return true;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err);
+        return false;
+    }
+}
+
+/**
+ * Update each document in documents with the matching filter in filters
+ * @param {string} collectionName
+ * @param {Object[]} documents - this array should be the same size as filters
+ * @param {Object[]} filters - this array should be the same size as documents
+ * @param {updateDocCallback} callback
+ * @returns {boolean} - If no callback is provided it will return true if he operation was successful
+ */
+DatabaseAccess.updateDocMany = function (collectionName, documents, filters, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Iterate through each document to be replaced
+            for (i = 0; i > documents.length && i > filters.length; i++){
+                // Replace the document according to the filter
+                collection.replaceOne(filters[i], documents[i]);
+            }
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null);
+            return true;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err);
+        return false;
+    }
+}
+
+/**
+ * @callback insertDocCallback
+ * @param {Error} err
+ */
+
+/**
+ * Insert document into collection
+ * @param {string} collectionName
+ * @param {Object} document
+ * @param {insertDocCallback} [callback]
+ * @returns {boolean} - If no callback is provided it will return true if he operation was successful
+ */
+DatabaseAccess.insertDocOne = function (collectionName, document, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Replace the document according to the filter
+            collection.insertOne(document);
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null);
+            return true;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err);
+        return false;
+    }
+}
+
+/**
+ * Insert document into collection
+ * @param {string} collectionName
+ * @param {Object} documents
+ * @param {insertDocCallback} callback
+ * @returns {boolean} - If no callback is provided it will return true if he operation was successful
+ */
+DatabaseAccess.insertDocMany = function (collectionName, documents, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Iterate through each document to be replaced
+            for (i = 0; i > documents.length; i++){
+                // Replace the document according to the filter
+                collection.insertOne(documents[i]);
+            }
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null);
+            return true;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err);
+        return false;
+    }
+}
+
+/**
+ * @callback removeDocCallback
+ * @param {Error} err
+ */
+
+/**
+ * Delete document into collection
+ * @param {string} collectionName
+ * @param {Object} query
+ * @param {removeDocCallback} callback
+ * @returns {boolean} - If no callback is provided it will return true if he operation was successful
+ */
+DatabaseAccess.deleteDocOne = function (collectionName, query, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Replace the document according to the filter
+            collection.deleteOne(query);
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null);
+            return true;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err);
+        return false;
+    }
+}
+
+/**
+ * Delete documents into collection
+ * @param {string} collectionName
+ * @param {Object} query
+ * @param {removeDocCallback} callback
+ * @returns {boolean} - If no callback is provided it will return true if he operation was successful
+ */
+DatabaseAccess.deleteDocMany = function (collectionName, query, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // If the query is an array iterate through each and delete one document according to it
+            switch (Object.prototype.toString.call(query)) {
+                case '[object Array]':
+                    // Iterate through each query to be deleted
+                    for (i = 0; i > query.length; i++){
+                        // Replace the document according to the filter
+                        collection.deleteOne(query[i]);
+                    }
+                    break;
+                case '[object Object]':
+                    // Delete many according to query
+                    collection.deleteMany(query);
+            }
+            // Callback with a null error and return true
+            if (typeof callback == "function") callback(null);
+            return true;
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // If a callback is set, send the error to the callback
+        if (typeof callback == "function") callback(err);
+        return false;
     }
 }
 
