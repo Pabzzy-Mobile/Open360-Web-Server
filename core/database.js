@@ -29,13 +29,19 @@ DatabaseAccess.dbName = 'user_data';
  * @param {collectionRetrievedCallback} callback
  */
 DatabaseAccess.getCollection = function (collectionName, callback){
+    // Change the timeout from connecting to the server and change the connection count to 1 just in case a connection
+    // isn't closed
+    let options = { useNewUrlParser: true, connectTimeoutMS: 30000, keepAlive: 1 };
     // Set the database client
-    let mongoClient = new MongoClient(DatabaseAccess.url);
+    let mongoClient = new MongoClient(DatabaseAccess.url, options);
     // Try to connect to the database
     try {
         // Connect to the database
         mongoClient.connect(function (err, client) {
-            if (err) console.error(err);
+            if (err) {
+                console.error(err);
+                throw (err);
+            }
             // Set the MongoClient to the connected client which is basically the same but they are currently living in
             // different places in memory so let's move them into the same household
             mongoClient = client;
@@ -68,11 +74,12 @@ DatabaseAccess.retrieveDocOne = function (collectionName, query, callback){
     try {
         // Retrieve the collection
         DatabaseAccess.getCollection(collectionName, function (err, collection) {
-            // Replace the document according to the filter
-            let result = collection.findOne(query);
-            // Callback with a null error and return true
-            if (typeof callback == "function") callback(null, result);
-            return result;
+            // Retrieve the document according to the query
+            collection.findOne(query, function (err, result) {
+                // Callback with a null error and return true
+                if (typeof callback == "function") callback(null, result);
+                return result;
+            });
         });
     } catch (err) {
         // If there was an error print it out and return false
@@ -95,15 +102,18 @@ DatabaseAccess.retrieveDocMany = function (collectionName, query, callback){
     try {
         // Retrieve the collection
         DatabaseAccess.getCollection(collectionName, function (err, collection) {
-            let resultArray = [];
-            // Replace the document according to the filter
-            let resultCursor = collection.find(query);
-            resultCursor.forEach(function (element) {
-                resultArray.push(element);
+            // Find all the documents according to the query
+            collection.find(query, function (err, resultCursor) {
+                // Define the result array
+                let resultArray = [];
+                // Iterate through and push doc to the results array
+                resultCursor.forEach(function (element) {
+                    resultArray.push(element);
+                });
+                // Callback with a null error and return true
+                if (typeof callback == "function") callback(null, resultArray);
+                return resultArray;
             });
-            // Callback with a null error and return true
-            if (typeof callback == "function") callback(null, resultArray);
-            return resultArray;
         });
     } catch (err) {
         // If there was an error print it out and return false
@@ -222,9 +232,8 @@ DatabaseAccess.insertDocMany = function (collectionName, documents, callback){
     try {
         // Retrieve the collection
         DatabaseAccess.getCollection(collectionName, function (err, collection) {
-            // Iterate through each document to be replaced
+            // Iterate through each document to be inserted
             for (i = 0; i > documents.length; i++){
-                // Replace the document according to the filter
                 collection.insertOne(documents[i]);
             }
             // Callback with a null error and return true
@@ -243,6 +252,7 @@ DatabaseAccess.insertDocMany = function (collectionName, documents, callback){
 /**
  * @callback removeDocCallback
  * @param {Error} err
+ * @param {number} deletedCount
  */
 
 /**
@@ -257,17 +267,18 @@ DatabaseAccess.deleteDocOne = function (collectionName, query, callback){
     try {
         // Retrieve the collection
         DatabaseAccess.getCollection(collectionName, function (err, collection) {
-            // Replace the document according to the filter
-            collection.deleteOne(query);
-            // Callback with a null error and return true
-            if (typeof callback == "function") callback(null);
-            return true;
+            // Delete the document according to the query
+            collection.deleteOne(query, {},function (err, result){
+                // Callback with a null error and return true
+                if (typeof callback == "function") callback(null, result.deletedCount);
+                return true;
+            });
         });
     } catch (err) {
         // If there was an error print it out and return false
         console.error(err);
         // If a callback is set, send the error to the callback
-        if (typeof callback == "function") callback(err);
+        if (typeof callback == "function") callback(err, 0);
         return false;
     }
 }
@@ -284,28 +295,33 @@ DatabaseAccess.deleteDocMany = function (collectionName, query, callback){
     try {
         // Retrieve the collection
         DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            let deletedCount = 0;
             // If the query is an array iterate through each and delete one document according to it
             switch (Object.prototype.toString.call(query)) {
                 case '[object Array]':
                     // Iterate through each query to be deleted
                     for (i = 0; i > query.length; i++){
                         // Replace the document according to the filter
-                        collection.deleteOne(query[i]);
+                        collection.deleteOne(query[i], {}, function (mongoError, result) {
+                            deletedCount += result.deletedCount;
+                        });
                     }
                     break;
                 case '[object Object]':
                     // Delete many according to query
-                    collection.deleteMany(query);
+                    collection.deleteMany(query, {},function (err, result){
+                        deletedCount += result.deletedCount;
+                    });
             }
             // Callback with a null error and return true
-            if (typeof callback == "function") callback(null);
+            if (typeof callback == "function") callback(null, deletedCount);
             return true;
         });
     } catch (err) {
         // If there was an error print it out and return false
         console.error(err);
         // If a callback is set, send the error to the callback
-        if (typeof callback == "function") callback(err);
+        if (typeof callback == "function") callback(err, 0);
         return false;
     }
 }
@@ -417,7 +433,8 @@ DatabaseAccess.write = {}
  */
 DatabaseAccess.write.addUserAuth = function (userData, callback){
     if (!userData.type === UserDataTypes.JUST_AUTH) {
-        callback(new Error("User was not of type 'JUST_AUTH'"))
+        callback(new Error("User was not of type 'JUST_AUTH'"));
+        return;
     }
     // Set the user doc to add
     let doc = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: true };

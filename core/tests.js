@@ -65,7 +65,10 @@ Tests.DatabaseTests.testInsertDelete = function (){
     userToTest.salt = "6RtAMLCs";
     // Add the user to the database
     DatabaseAccess.write.addUserAuth(userToTest, function (err){
-        if (err) console.error(err);
+        if (err) {
+            console.error(err);
+            insertPassed &= false;
+        }
     });
     // Find the user and check if it was successfully added
     DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (err, user){
@@ -74,15 +77,20 @@ Tests.DatabaseTests.testInsertDelete = function (){
         insertPassed &= user.username === userToTest.username;
     });
     // Set the delete filter
-    let filter = {userId: "c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", username: "jonny554"};
+    let filter = {userId: userToTest.userId, username: userToTest.username};
     // Remove the user from the database
-    DatabaseAccess.deleteDocOne("user_auth", filter, function (err) {
-        if (err) console.error(err);
+    DatabaseAccess.deleteDocMany("user_auth", filter, function (err, deletedCount) {
+        if (err) {
+            console.error(err);
+            deletePassed &= false;
+        }
+        // Check if there was exactly one deletion
+        deletePassed &= deletedCount === 1;
     });
     // Check if the user is still on the database
     DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (err, user){
         // Check if the user can be found
-        deletePassed = user === null
+        deletePassed = user === null;
     });
     // Check if the tests passed and send some error info if not
     if (!insertPassed) console.error("Database User insertion didn't pass");
