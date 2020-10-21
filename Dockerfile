@@ -13,4 +13,4 @@ COPY core ./core
 EXPOSE $PORT
 EXPOSE 443
 
-CMD [ "npm", "start" ]
+CMD [ "node", "main.js" ]

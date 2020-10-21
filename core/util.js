@@ -42,6 +42,13 @@ Util.UserData = function (){
      * TODO: CREATE A PROTOTYPE FOR THIS
      * @type {*[]} */
     this.subscriptions = [];
+    /** Convert object to the userData type
+     * @param obj
+     * @return Util.UserData */
+    this.cast = function (obj) {
+        obj && Object.assign(this, obj);
+        return this;
+    }
 }
 
 /**

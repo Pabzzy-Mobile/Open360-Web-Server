@@ -68,17 +68,19 @@ Tests.DatabaseTests.testInsertDelete = function (){
         if (err) console.error(err);
     });
     // Find the user and check if it was successfully added
-    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (user){
+    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (err, user){
         // Check if the user can be found
         insertPassed = user.userId === userToTest.userId;
         insertPassed &= user.username === userToTest.username;
     });
+    // Set the delete filter
+    let filter = {userId: "c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", username: "jonny554"};
     // Remove the user from the database
-    DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
-        usersCollection.deleteOne({userId: "c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", username: "jonny554"});
+    DatabaseAccess.deleteDocOne("user_auth", filter, function (err) {
+        if (err) console.error(err);
     });
     // Check if the user is still on the database
-    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (user){
+    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (err, user){
         // Check if the user can be found
         deletePassed = user === null
     });

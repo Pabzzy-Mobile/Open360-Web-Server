@@ -317,8 +317,14 @@ DatabaseAccess.deleteDocMany = function (collectionName, query, callback){
  */
 DatabaseAccess.find = {};
 
+/*
+  TODO LIST:
+   REFACTOR USER DETAILS AND USER AUTH
+ */
+
 /**
  * @callback userFindCallback
+ * @param {Error} err
  * @param {Util.UserData} result
  */
 
@@ -328,18 +334,22 @@ DatabaseAccess.find = {};
  * @param callback {userFindCallback} - The callback function
  */
 DatabaseAccess.find.userDetails = function (userId, callback){
-    // Get the collection
-    DatabaseAccess.getCollection("user_details", function (client, usersCollection){
-        // Set the query
-        let query = { userId: userId };
-        // Execute the query
-        let result = usersCollection.findOne(query);
-        // Cast the result to a UserData type
-        let userData = Object.assign(new UserData(), result)
+    // Set the query
+    let query = { userId: userId };
+    // Execute the query
+    DatabaseAccess.retrieveDocOne("user_info", query, function (err, result){
+        if (err != null) {
+            callback(err, null);
+            return;
+        }
+        // Create an empty UserData object
+        let userData = new UserData();
+        // Cast the result to UserData object
+        userData = userData.cast(result);
         // Set the data type to user auth
         userData.type = UserDataTypes.JUST_DETAILS;
         // Pass the result to the callback function
-        callback(result);
+        callback(null, userData);
     });
 }
 
@@ -349,37 +359,43 @@ DatabaseAccess.find.userDetails = function (userId, callback){
  * @param callback {userFindCallback} - The callback function
  */
 DatabaseAccess.find.userAuth = function (userId, callback){
-    // Get the collection
-    DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
-        // Set the query
-        let query = { userId: userId };
-        // Execute the query
-        let result = usersCollection.findOne(query);
-        // Cast the result to a UserData type
-        let userData = Object.assign(new UserData(), result)
+    // Set the query
+    let query = { userId: userId };
+    // Execute the query
+    DatabaseAccess.retrieveDocOne("user_auth", query, function (err, result){
+        if (err != null) {
+            callback(err, null);
+            return;
+        }
+        // Create an empty UserData object
+        let userData = new UserData();
+        // Cast the result to UserData object
+        userData = userData.cast(result);
         // Set the data type to user auth
         userData.type = UserDataTypes.JUST_AUTH;
         // Pass the result to the callback function
-        callback(result);
+        callback(null, userData);
     });
 }
 
 /**
- * Find a user by username
+ * Retrieves the user's details by username
  * @param username {string} - The username to look for
  * @param callback {userFindCallback} - The callback function
  */
 DatabaseAccess.find.userByUsername = function (username, callback){
-    // Get the collection
-    DatabaseAccess.getCollection("user_info", function (client, usersCollection){
-        // Set the query
-        let query = { username: username };
-        // Execute the query
-        usersCollection.findOne(query, function (err, result) {
-            if (err) console.error(err);
-            // Pass the result to the callback function
-            callback(result);
-        });
+    // Set the query
+    let query = { username: username };
+    // Execute the query
+    DatabaseAccess.retrieveDocOne("user_info", query, function (err, result){
+        // Create an empty UserData object
+        let userData = new UserData();
+        // Cast the result to UserData object
+        userData = userData.cast(result);
+        // Set the data type to user auth
+        userData.type = UserDataTypes.JUST_DETAILS;
+        // Pass the result to the callback function
+        callback(userData);
     });
 }
 
@@ -403,51 +419,54 @@ DatabaseAccess.write.addUserAuth = function (userData, callback){
     if (!userData.type === UserDataTypes.JUST_AUTH) {
         callback(new Error("User was not of type 'JUST_AUTH'"))
     }
-    // Get the collection
-    DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
-        // Set the user doc to add
-        let doc = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: true };
-        // Insert the user into the collection
-        // TODO: ADD COLLISION CHECKING
-        usersCollection.insertOne(doc);
+    // Set the user doc to add
+    let doc = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: true };
+    // Insert the user doc
+    DatabaseAccess.insertDocOne("user_auth", doc, function (err){
+        // This function doesn't expressively need a callback
+        if (callback != null && typeof callback == "function") callback(err);
     });
 }
 
 /**
+ * @callback updateUserCallback
+ * @param {Error} err
+ */
+
+/**
  *
  * @param {Util.UserData} userData
- * @param callback
+ * @param {updateUserCallback} [callback]
  */
 DatabaseAccess.write.updateUserAuth = function (userData, callback){
     if (!userData.type === UserDataTypes.JUST_AUTH) {
         callback(new Error("User was not of type 'JUST_AUTH'"))
     }
-    DatabaseAccess.getCollection("user_auth", function (client, collection){
-        // Set the filter
-        let filter = {userId: userData.userId};
-        // Define the replacing document
-        let replacingUser = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: userData.active};
-        // Run the replace query
-        collection.replaceOne(filter, replacingUser);
+    // Set the filter
+    let filter = {userId: userData.userId};
+    // Define the replacing document
+    let replacingUser = {userId: userData.userId, username: userData.username, password: userData.password, salt: userData.salt, active: userData.active};
+    // Insert the user doc
+    DatabaseAccess.updateDocOne("user_auth", replacingUser, filter, function (err){
         // This function doesn't expressively need a callback
-        if (callback != null && typeof callback == "function") callback();
+        if (callback != null && typeof callback == "function") callback(err);
     });
 }
 
 /**
  * Set the active status of a user account by user Id
  * @param userId {string} - User Id to look for
- * @param active {boolean} - Account activated status
- * @param callback
+ * @param newActive {boolean} - Account activated status
+ * @param callback {updateUserCallback}
  */
-DatabaseAccess.write.setActiveUserAuth = function (userId, active, callback){
-    DatabaseAccess.find.userAuth(userId, function (userData) {
-        if (userData == null) {
-            callback(new Error("User to deactivate not found"));
-            return false;
-        }
-        userData.active = active;
-        DatabaseAccess.write.updateUserAuth(userData);
+DatabaseAccess.write.setActiveUserAuth = function (userId, newActive, callback){
+    // Set the filter to find the user by Id
+    let filter = {userId: userId};
+    // Set what fields the database should modify
+    let doc = {$set: {active: newActive}};
+    DatabaseAccess.updateDocOne("user_auth", doc, filter, function (err){
+        // This function doesn't expressively need a callback
+        if (callback != null && typeof callback == "function") callback(err);
     });
 }
 
@@ -467,15 +486,13 @@ DatabaseAccess.write.removeUserAuth = function (userId, callback) {
             callback(new Error("This account is still active, deletion failed"));
             return false;
         }
-        DatabaseAccess.getCollection("user_auth", function (client, usersCollection){
-            // Set the filter
-            let filter = {userId: userId};
-            // Execute order 66
-            usersCollection.removeOne(filter);
-            // Call the callback
-            callback();
-            return true;
-        })
+        // Set the filter
+        let filter = {userId: userId};
+        // Execute order 66
+        DatabaseAccess.deleteDocOne("user_auth", filter, function (err){
+            // This function doesn't expressively need a callback
+            if (callback != null && typeof callback == "function") callback(err);
+        });
     });
 }
 
