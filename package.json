@@ -32,6 +32,7 @@
     "mongodb": "^3.6.2",
     "nunjucks": "^3.2.2",
     "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
     "redis": "^3.0.2",
     "video.js": "^7.9.7",
     "videojs-vr": "^1.7.1"

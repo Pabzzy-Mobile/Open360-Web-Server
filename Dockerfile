@@ -9,6 +9,7 @@ RUN npm install
 COPY main.js .
 COPY public ./public
 COPY core ./core
+COPY views ./views
 
 EXPOSE $PORT
 EXPOSE 443

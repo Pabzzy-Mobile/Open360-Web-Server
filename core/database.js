@@ -1,6 +1,7 @@
 // Require the MongoDB driver
 const {MongoClient, Collection} = require('mongodb');
 // Require the Util module
+const Util = require('./util');
 const {UserData, UserDataTypes} = require('./util');
 
 // Define the database access object
@@ -395,6 +396,59 @@ DatabaseAccess.find.userAuth = function (userId, callback){
 }
 
 /**
+ * @callback userCheckCallback
+ * @param {boolean} result of the query
+ */
+
+/**
+ * Returns true if user ID already exists
+ * @param userId
+ * @param [callback] {userCheckCallback}
+ */
+DatabaseAccess.find.userAuthExists = function (userId, callback){
+    // Set the query
+    let query = { userId: userId };
+    // Execute the query
+    DatabaseAccess.retrieveDocOne("user_auth", query, function (err, result){
+        if (err != null) {
+            callback(err, null);
+            return;
+        }
+        // This function doesn't expressively need a callback
+        if (callback != null && typeof callback == "function") callback(result != null);
+        // Return if the user was found
+        return result != null;
+    });
+}
+
+/**
+ * Find user auth by username
+ * @param username {string} - The username to look for
+ * @param callback {userFindCallback} - The callback function
+ */
+DatabaseAccess.find.userAuthByUsername = function (username, callback){
+    // WARN: This function gets the userId from user_info and then uses that to get the user_auth. This is not good
+    // Set the query for the user info
+    let query = { username: username };
+    // Execute the query
+    DatabaseAccess.retrieveDocOne("user_auth", query, function (err, result){
+        // Check if the user was found
+        if (result == null) {
+            callback(null, null);
+            return;
+        }
+        // Create an empty UserData object
+        let userAuthData = new UserData();
+        // Cast the result to UserData object
+        userAuthData = userAuthData.cast(result);
+        // Set the data type to user auth
+        userAuthData.type = UserDataTypes.JUST_AUTH;
+        // Pass the result to the callback function
+        callback(null, userAuthData);
+    });
+}
+
+/**
  * Retrieves the user's details by username
  * @param username {string} - The username to look for
  * @param callback {userFindCallback} - The callback function
@@ -404,6 +458,11 @@ DatabaseAccess.find.userByUsername = function (username, callback){
     let query = { username: username };
     // Execute the query
     DatabaseAccess.retrieveDocOne("user_info", query, function (err, result){
+        // Check if the user was found
+        if (result == null) {
+            callback(null, null);
+            return;
+        }
         // Create an empty UserData object
         let userData = new UserData();
         // Cast the result to UserData object
@@ -411,7 +470,7 @@ DatabaseAccess.find.userByUsername = function (username, callback){
         // Set the data type to user auth
         userData.type = UserDataTypes.JUST_DETAILS;
         // Pass the result to the callback function
-        callback(userData);
+        callback(null, userData);
     });
 }
 
@@ -429,7 +488,43 @@ DatabaseAccess.write = {}
 /**
  *
  * @param userData {Util.UserData}
- * @param callback {newUserCallback}
+ * @param [callback] {newUserCallback}
+ */
+DatabaseAccess.write.addUserAllInfo = function (userData, callback){
+    if (!userData.type === UserDataTypes.ALL_INFO) {
+        callback(new Error("User was not of type 'ALL_INFO'"));
+        return;
+    }
+    // Insert the user's auth into the collection
+    DatabaseAccess.write.addUserAuth(userData);
+    // Insert the user's details into the collection
+    DatabaseAccess.write.addUserDetails(userData);
+    callback(null);
+}
+
+/**
+ *
+ * @param userData {Util.UserData}
+ * @param [callback] {newUserCallback}
+ */
+DatabaseAccess.write.addUserDetails = function (userData, callback){
+    if (!userData.type === UserDataTypes.JUST_DETAILS) {
+        callback(new Error("User was not of type 'JUST_DETAILS'"));
+        return;
+    }
+    // Set the user doc to add
+    let doc = {userId: userData.userId, username: userData.username, email: userData.email, displayName: userData.displayName, subscriptions: userData.subscriptions };
+    // Insert the user doc
+    DatabaseAccess.insertDocOne("user_info", doc, function (err){
+        // This function doesn't expressively need a callback
+        if (callback != null && typeof callback == "function") callback(err);
+    });
+}
+
+/**
+ *
+ * @param userData {Util.UserData}
+ * @param [callback] {newUserCallback}
  */
 DatabaseAccess.write.addUserAuth = function (userData, callback){
     if (!userData.type === UserDataTypes.JUST_AUTH) {
@@ -511,6 +606,20 @@ DatabaseAccess.write.removeUserAuth = function (userId, callback) {
             if (callback != null && typeof callback == "function") callback(err);
         });
     });
+}
+
+DatabaseAccess.util = {}
+
+/**
+ * Generates a unique userId
+ * @return {string}
+ */
+DatabaseAccess.util.generateUserId = function (){
+    let userId = Util.generateString(32);
+    if (DatabaseAccess.find.userAuthExists(userId)){
+        userId = DatabaseAccess.util.generateUserId();
+    }
+    return userId;
 }
 
 

@@ -1,3 +1,6 @@
+// Require the crypto module
+const crypto = require("crypto");
+
 /**
  * Contains all utility types and methods
  * @type {Object}
@@ -49,6 +52,9 @@ Util.UserData = function (){
         obj && Object.assign(this, obj);
         return this;
     }
+    this.empty = function (){
+        return this.userId === "" && this.username === "" && this.email === "" && this.password === "" && this.salt === "" && this.displayName === "" && this.subscriptions === [];
+    }
 }
 
 /**
@@ -72,6 +78,40 @@ Util.UserDataTypes = {
      * Only the salt
      */
     "JUST_HASH": 3
+}
+
+/**
+ * Salts a password, if no salt is passed it'll generate a new one
+ * @param password {string}
+ * @param [salt] {string}
+ * @return {{password: string, salt: string}}
+ */
+Util.saltPassword = function (password, salt){
+    if (salt == null){
+        // Generate the salt
+        salt = Util.generateString(8);
+    }
+    // Set the hash
+    let hash = crypto.createHash('sha256');
+    // Hash the password and salt it
+    let hashedPassword = hash.update(password + salt).digest('hex');
+    // Return the password and the salt
+    return {password: hashedPassword, salt: salt};
+}
+
+/**
+ * Generates a random string of characters
+ * @param length
+ * @return {string}
+ */
+Util.generateString = function (length){
+    let result           = '';
+    let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
 }
 
 module.exports = Util;
