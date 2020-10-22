@@ -114,7 +114,7 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 
 // Home page request
 app.get('/', function (req, res){
-   res.render("index.html", {
+   res.render("index", {
       user: req.user,
       req: JSON.stringify(req.user)
    });
@@ -167,14 +167,23 @@ app.post('/register', function (req, res) {
    userData.subscriptions = [];
    userData.active = true;
    userData.type = Util.UserDataTypes.ALL_INFO;
-   // save in database
-   DatabaseAccess.write.addUserAllInfo(userData, function (err) {
-      if (err) {
-         console.log(err);
-         res.redirect('/register');
-      } else {
-         res.redirect('/login');
+   // Check if the user already is taken
+   DatabaseAccess.find.userAuthExistsByUserData(userData, function (userExists, message){
+      if (message !== "ok") {
+         res.render('register',{
+            error: message
+         });
+         return;
       }
+      // Add the user to the database
+      DatabaseAccess.write.addUserAllInfo(userData, function (err) {
+         if (err) {
+            console.log(err);
+            res.redirect('/register');
+         } else {
+            res.redirect('/login');
+         }
+      });
    });
 });
 

@@ -92,28 +92,31 @@ DatabaseAccess.retrieveDocOne = function (collectionName, query, callback){
 }
 
 /**
+ * @callback retrieveDocManyCallback
+ * @param {Error} err
+ * @param {Object[]} result
+ */
+
+/**
  * Retrieves documents in the collection using the query
  * @param {string} collectionName
  * @param {Object} query
- * @param {retrieveDocCallback} [callback]
- * @returns {Object} - If no callback is provided, it will return the result of the transaction
+ * @param {retrieveDocManyCallback} [callback]
+ * @returns {Object[]} - If no callback is provided, it will return the result of the transaction
  */
-DatabaseAccess.retrieveDocMany = function (collectionName, query, callback){
+DatabaseAccess.retrieveDocManyAll = function (collectionName, query, callback){
     // Try to connect to the database
     try {
         // Retrieve the collection
         DatabaseAccess.getCollection(collectionName, function (err, collection) {
             // Find all the documents according to the query
             collection.find(query, function (err, resultCursor) {
-                // Define the result array
-                let resultArray = [];
-                // Iterate through and push doc to the results array
-                resultCursor.forEach(function (element) {
-                    resultArray.push(element);
+                // Array the
+                resultCursor.toArray(function (err, array){
+                    // Callback with a null error and return true
+                    if (typeof callback == "function") callback(null, array);
+                    return array;
                 });
-                // Callback with a null error and return true
-                if (typeof callback == "function") callback(null, resultArray);
-                return resultArray;
             });
         });
     } catch (err) {
@@ -402,10 +405,13 @@ DatabaseAccess.find.userAuth = function (userId, callback){
 
 /**
  * Returns true if user ID already exists
- * @param userId
+ * @param userId {string|Util.UserData}
  * @param [callback] {userCheckCallback}
  */
 DatabaseAccess.find.userAuthExists = function (userId, callback){
+    if (typeof userId == "Util.UserData") {
+        DatabaseAccess.userAuthExistsByUserData(userId, callback);
+    }
     // Set the query
     let query = { userId: userId };
     // Execute the query
@@ -418,6 +424,53 @@ DatabaseAccess.find.userAuthExists = function (userId, callback){
         if (callback != null && typeof callback == "function") callback(result != null);
         // Return if the user was found
         return result != null;
+    });
+}
+
+/**
+ * @callback userdataCheckCallback
+ * @param {boolean} result of the query
+ * @param {string} message
+ */
+
+/**
+ * Returns true if user ID already exists
+ * @param userData {Util.UserData}
+ * @param callback {userdataCheckCallback}
+ */
+DatabaseAccess.find.userAuthExistsByUserData = function (userData, callback){
+    // Set the queries
+    let filter = { $or:
+        [
+            {username: userData.username},
+            {email: userData.email}
+        ]
+    };
+    // Execute the queries
+    DatabaseAccess.retrieveDocManyAll("user_info", filter, function (err, result){
+        if (err != null) {
+            callback(false, "An error has occurred");
+            return;
+        }
+        // Define the return message
+        let message = "ok";
+        // Go through each result and check if there is collisions
+        result.forEach(function (userFound) {
+            // Create an empty UserData object
+            let foundUserData = new UserData();
+            // Cast the result to UserData object
+            foundUserData = foundUserData.cast(userFound);
+            // Set the data type to user auth
+            foundUserData.type = UserDataTypes.JUST_AUTH;
+            // Check if the username is taken
+            if (foundUserData.username === userData.username) message = "Username already taken";
+            // Check if the email is taken
+            if (foundUserData.email === userData.email) message = "Email already taken";
+        });
+        // This function doesn't expressively need a callback
+        if (callback != null && typeof callback == "function") callback(result.length === 0, message);
+        // Return if the user was found
+        return result.length === 0;
     });
 }
 
