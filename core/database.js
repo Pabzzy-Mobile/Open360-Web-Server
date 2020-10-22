@@ -129,6 +129,40 @@ DatabaseAccess.retrieveDocManyAll = function (collectionName, query, callback){
 }
 
 /**
+ * @callback retrieveDocManyEachCallback
+ * @param {Error} err
+ * @param {Object} element
+ */
+
+/**
+ * Retrieves documents in the collection using the query, callback on every element
+ * @param {string} collectionName
+ * @param {Object} query
+ * @param {retrieveDocManyEachCallback} callback
+ */
+DatabaseAccess.retrieveDocManyEach = function (collectionName, query, callback){
+    // Try to connect to the database
+    try {
+        // Retrieve the collection
+        DatabaseAccess.getCollection(collectionName, function (err, collection) {
+            // Find all the documents according to the query
+            collection.find(query, function (err, resultCursor) {
+                // Array the
+                resultCursor.forEach(function (element){
+                    // Callback with a null error and return true
+                    callback(null, element);
+                });
+            });
+        });
+    } catch (err) {
+        // If there was an error print it out and return false
+        console.error(err);
+        // Send the error to the callback
+        callback(err, null);
+    }
+}
+
+/**
  * @callback updateDocCallback
  * @param {Error} err
  */
@@ -330,17 +364,20 @@ DatabaseAccess.deleteDocMany = function (collectionName, query, callback){
     }
 }
 
+
+/*
+  TODO LIST:
+   [ ] REFACTOR USER DETAILS AND USER AUTH
+   [ ] SEPARATE FUNCTIONS INTO OTHER FILES
+   [ ] MAKE database.js INTO A DIRECTORY
+ */
+
 // Define the find section of Database Access
 /**
  * This object contains all the methods to read from the database.
  * @type {Object}
  */
 DatabaseAccess.find = {};
-
-/*
-  TODO LIST:
-   REFACTOR USER DETAILS AND USER AUTH
- */
 
 /**
  * @callback userFindCallback
