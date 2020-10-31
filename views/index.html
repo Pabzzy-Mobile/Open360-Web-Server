@@ -10,10 +10,10 @@
     <h1>Home</h1>
     {% if user %}
     Hello {{user.displayName}} ({{user.username}}),
-    <a href="/logout">logout</a>
+    <a href="/auth/logout">logout</a>
     {% else %}
     Please login
-    <a href="/login">here</a>
+    <a href="/auth/login">here</a>
     {% endif %}
     <code><pre>{{req}}</pre></code>
 </body>

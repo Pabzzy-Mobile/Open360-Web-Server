@@ -108,7 +108,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Use the public directory for files
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // RESPONSES AND REQUESTS
 
@@ -121,40 +121,48 @@ app.get('/', function (req, res){
 });
 
 // Profile page requests
-app.get('/profile', function (req, res){
-   if (req.query.u != null) {
+app.get('/:id', function (req, res){
+   // Get the username
+   let username = req.params.id;
+   // Check if the username is not null
+   if (username != null) {
       // Find the user
-      DatabaseAccess.find.userByUsername(req.query.u, function (err, user) {
+      DatabaseAccess.find.userByUsername(username, function (err, user) {
          if (user === {} || user === null || user.empty()) {
             res.send("User not found");
             return;
          }
-         // Send info back
-         res.send(req.query.u + " corresponded with " + (JSON.stringify(user) || null));
+         // Render the channel page
+         res.render("channel", {
+            user: req.user,
+            channel: user,
+            req: JSON.stringify(req.user),
+            data: JSON.stringify(user) || null
+         });
       });
    } else {
-      res.send('Search for a user using /profile?u=&lt;username&gt;\nThe current query is ' + JSON.stringify(req.query));
+      res.send('Search for a user using /&lt;username&gt;\nThe current query is ' + JSON.stringify(username));
    }
 });
 
 // LOGIN PAGES
 
-app.get('/login', function (req, res) {
+app.get('/auth/login', function (req, res) {
    res.render('login');
 });
 
-app.post('/login',
+app.post('/auth/login',
     passport.authenticate('local', {
        failureRedirect: '/login',
        successRedirect: '/'
     })
 );
 
-app.get('/register', function (req, res) {
+app.get('/auth/register', function (req, res) {
    res.render('register');
 });
 
-app.post('/register', function (req, res) {
+app.post('/auth/register', function (req, res) {
    let cryptography = Util.saltPassword(req.body.password);
    // Cast POST data to userData
    let userData = new Util.UserData();
@@ -167,6 +175,12 @@ app.post('/register', function (req, res) {
    userData.subscriptions = [];
    userData.active = true;
    userData.type = Util.UserDataTypes.ALL_INFO;
+
+   if (Util.notAllowedUsernames.includes(userData.username)){
+      res.render('register',{
+         error: "This username is not allowed"
+      });
+   }
    // Check if the user already is taken
    DatabaseAccess.find.userAuthExistsByUserData(userData, function (userExists, message){
       if (message !== "ok") {
@@ -179,15 +193,15 @@ app.post('/register', function (req, res) {
       DatabaseAccess.write.addUserAllInfo(userData, function (err) {
          if (err) {
             console.log(err);
-            res.redirect('/register');
+            res.redirect('/auth/register');
          } else {
-            res.redirect('/login');
+            res.redirect('/auth/login');
          }
       });
    });
 });
 
-app.get('/logout', function (req, res) {
+app.get('/auth/logout', function (req, res) {
    req.logout();
    res.redirect('/');
 });

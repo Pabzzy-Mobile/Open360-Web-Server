@@ -12,6 +12,5 @@ COPY core ./core
 COPY views ./views
 
 EXPOSE $PORT
-EXPOSE 443
 
 CMD [ "node", "main.js" ]

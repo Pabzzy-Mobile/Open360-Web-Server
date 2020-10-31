@@ -114,4 +114,11 @@ Util.generateString = function (length){
     return result;
 }
 
+Util.notAllowedUsernames = [
+    "login",
+    "register",
+    "auth",
+    "public"
+]
+
 module.exports = Util;
