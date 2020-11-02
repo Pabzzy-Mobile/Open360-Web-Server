@@ -67,7 +67,7 @@ passport.serializeUser(function (user, cb) {
 });
 
 passport.deserializeUser(function (id, cb) {
-   DatabaseAccess.find.userDetails(id, function (err, userData) {
+   DatabaseAccess.find.userDetailsByUserId(id, function (err, userData) {
       if (err) {
          return cb(err);
       }

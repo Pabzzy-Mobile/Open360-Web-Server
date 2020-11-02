@@ -1,5 +1,5 @@
 const Util = require("./util");
-const DatabaseAccess = require("./database.js");
+const DatabaseAccess = require("./database/");
 
 // Define the Tests module
 let Tests = {};
@@ -71,24 +71,20 @@ Tests.DatabaseTests.testInsertDelete = function (){
         }
     });
     // Find the user and check if it was successfully added
-    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (err, user){
+    DatabaseAccess.find.userAuthByUserId(userToTest.userId, function (err, user){
         // Check if the user can be found
         insertPassed = user.userId === userToTest.userId;
         insertPassed &= user.username === userToTest.username;
     });
-    // Set the delete filter
-    let filter = {userId: userToTest.userId, username: userToTest.username};
     // Remove the user from the database
-    DatabaseAccess.deleteDocMany("user_auth", filter, function (err, deletedCount) {
+    DatabaseAccess.write.removeUserAuth(userToTest.userId, true, function (err) {
         if (err) {
             console.error(err);
-            deletePassed &= false;
+            insertPassed &= false;
         }
-        // Check if there was exactly one deletion
-        deletePassed &= deletedCount === 1;
     });
     // Check if the user is still on the database
-    DatabaseAccess.find.userAuth("c9dc993100e7fc30dbc0769deb19dba15bfbc5bf", function (err, user){
+    DatabaseAccess.find.userAuthByUserId(userToTest.userId, function (err, user){
         // Check if the user can be found
         deletePassed = user === null;
     });

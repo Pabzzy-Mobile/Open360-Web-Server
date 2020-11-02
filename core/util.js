@@ -61,6 +61,64 @@ const UserDataTypes = {
 }
 
 /**
+ * @type {Object} ChannelData
+ * @property {string} userId - Identifier of the owner of the channel
+ * @property {ChannelStatus} channelStatus - Online status of the channel
+ * @property {ChannelModule[]} modules - Current modules this channel has
+ * @property {string} title - Title of the stream
+ * @property {string} description - Description of the channel
+ * @property {string} streamKey - StreamKey of the channel
+ */
+class ChannelData {
+    constructor() {
+        this.userId = "";
+        this.channelStatus = ChannelStatus.UNKNOWN;
+        this.modules = [];
+        this.title = "";
+        this.description = "";
+        this.streamKey = "";
+    }
+
+    cast(obj) {
+        obj && Object.assign(this, obj);
+        return this;
+    }
+}
+
+/**
+ * @type ChannelModule
+ * @property {string} moduleId
+ * @property {string} viewPath
+ * @property {string} jsPath
+ * @property {string[]} params
+ */
+class ChannelModule {
+    constructor() {
+        this.moduleId = "";
+        this.viewPath = "";
+        this.jsPath = "";
+        this.params = [];
+    }
+
+    cast(obj) {
+        obj && Object.assign(this, obj);
+        return this;
+    }
+}
+
+/**
+ * @const ChannelStatus
+ * @property {number} ONLINE -
+ * @type {{UNKNOWN: number, LURKING: number, ONLINE: number, OFFLINE: number}}
+ */
+const ChannelStatus = {
+    "ONLINE": 0,
+    "OFFLINE": 1,
+    "LURKING": 2,
+    "UNKNOWN": 3
+}
+
+/**
  * Salts a password, if no salt is passed it'll generate a new one
  * @param password {string}
  * @param [salt] {string}
@@ -108,6 +166,9 @@ const NotAllowedUsernames = [
 module.exports = {
     UserData,
     UserDataTypes,
+    ChannelData,
+    ChannelModule,
+    ChannelStatus,
     saltPassword,
     generateString,
     NotAllowedUsernames
