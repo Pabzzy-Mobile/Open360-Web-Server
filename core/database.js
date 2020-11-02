@@ -382,7 +382,7 @@ DatabaseAccess.find = {};
 /**
  * @callback userFindCallback
  * @param {Error} err
- * @param {Util.UserData} result
+ * @param {UserData} result
  */
 
 /**
@@ -442,11 +442,11 @@ DatabaseAccess.find.userAuth = function (userId, callback){
 
 /**
  * Returns true if user ID already exists
- * @param userId {string|Util.UserData}
+ * @param userId {string|UserData}
  * @param [callback] {userCheckCallback}
  */
 DatabaseAccess.find.userAuthExists = function (userId, callback){
-    if (typeof userId == "Util.UserData") {
+    if (typeof userId == "UserData") {
         DatabaseAccess.userAuthExistsByUserData(userId, callback);
     }
     // Set the query
@@ -472,7 +472,7 @@ DatabaseAccess.find.userAuthExists = function (userId, callback){
 
 /**
  * Returns true if user ID already exists
- * @param userData {Util.UserData}
+ * @param userData {UserData}
  * @param callback {userdataCheckCallback}
  */
 DatabaseAccess.find.userAuthExistsByUserData = function (userData, callback){
@@ -577,7 +577,7 @@ DatabaseAccess.write = {}
 
 /**
  *
- * @param userData {Util.UserData}
+ * @param userData {UserData}
  * @param [callback] {newUserCallback}
  */
 DatabaseAccess.write.addUserAllInfo = function (userData, callback){
@@ -594,7 +594,7 @@ DatabaseAccess.write.addUserAllInfo = function (userData, callback){
 
 /**
  *
- * @param userData {Util.UserData}
+ * @param userData {UserData}
  * @param [callback] {newUserCallback}
  */
 DatabaseAccess.write.addUserDetails = function (userData, callback){
@@ -613,7 +613,7 @@ DatabaseAccess.write.addUserDetails = function (userData, callback){
 
 /**
  *
- * @param userData {Util.UserData}
+ * @param userData {UserData}
  * @param [callback] {newUserCallback}
  */
 DatabaseAccess.write.addUserAuth = function (userData, callback){
@@ -637,7 +637,7 @@ DatabaseAccess.write.addUserAuth = function (userData, callback){
 
 /**
  *
- * @param {Util.UserData} userData
+ * @param {UserData} userData
  * @param {updateUserCallback} [callback]
  */
 DatabaseAccess.write.updateUserAuth = function (userData, callback){

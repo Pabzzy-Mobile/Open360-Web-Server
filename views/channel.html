@@ -11,18 +11,26 @@
 <div class="media"></div>
 <div class="chat">
     <div class="messages"></div>
+    {% if user %}
     <div class="message-box">
         <input type="text" placeholder="message...">
         <a href="#" onclick="return false;">Send</a>
     </div>
+    {% else %}
+    <div class="message-box">
+        <p>You need to be logged in to message in {{channel.username}}'s chat</p>
+    </div>
+    {% endif %}
 </div>
 <script src="/public/javascript/feature-chat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
 <script>
     createLogElement("Connecting to the chat room of " + "{{channel.username}}");
-
+    //{% if user %}
     let socket = io.connect("192.168.1.160:4002", {query: "channel={{channel.username}}&user={{user.displayName}}"});
-
+    //{% else %}
+    let socket = io.connect("192.168.1.160:4002", {query: "channel={{channel.username}}"});
+    //{% endif %}
     socket.on("connect", () => {
         createLogElement("Connected!");
     });
@@ -34,7 +42,7 @@
     socket.on("chat-message", (data) => {
         createMessageElement(data.message, data.user);
     });
-
+    //{% if user %}
     document.querySelector(".message-box a").addEventListener("mouseup", e => {
         sendMessage();
     });
@@ -42,10 +50,7 @@
         if (e.key.toString() === "Enter")
             sendMessage();
     });
-
-    //socket.on("debug", (data) => {
-    //    document.querySelector(".chat").append("<pre>" + data + "</pre>");
-    //});
+    //{% endif %}
 </script>
 </body>
 </html>

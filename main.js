@@ -22,14 +22,14 @@ let RedisClient = redis.createClient({
 });
 
 // Require our core library
-let { DatabaseAccess, Tests, Util} = require("./core");
+let { DatabaseAccess, Tests, Util, HTTPResponses} = require("./core");
 
 // Tell the server what port it should use. 4000 is for testing purposes
 const PORT = parseInt(process.env.PORT) || 4000;
 
 // SET UP
 
-passport.use(new LocalStrategy(
+passport.use('local', new LocalStrategy(
     function (username, password, cb) {
        // Find the user's Auth information
        DatabaseAccess.find.userAuthByUsername(username, function (err, userData) {
@@ -110,45 +110,24 @@ app.use(passport.session());
 // Use the public directory for files
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
+// ---- end of SET UP ----
+
 // RESPONSES AND REQUESTS
 
 // Home page request
 app.get('/', function (req, res){
-   res.render("index", {
-      user: req.user,
-      req: JSON.stringify(req.user)
-   });
+   HTTPResponses.handleHomepageGET(req, res);
 });
 
 // Profile page requests
 app.get('/:id', function (req, res){
-   // Get the username
-   let username = req.params.id;
-   // Check if the username is not null
-   if (username != null) {
-      // Find the user
-      DatabaseAccess.find.userByUsername(username, function (err, user) {
-         if (user === {} || user === null || user.empty()) {
-            res.send("User not found");
-            return;
-         }
-         // Render the channel page
-         res.render("channel", {
-            user: req.user,
-            channel: user,
-            req: JSON.stringify(req.user),
-            data: JSON.stringify(user) || null
-         });
-      });
-   } else {
-      res.send('Search for a user using /&lt;username&gt;\nThe current query is ' + JSON.stringify(username));
-   }
+   HTTPResponses.handleChannelByUsernameGET(req, res);
 });
 
 // LOGIN PAGES
 
 app.get('/auth/login', function (req, res) {
-   res.render('login');
+   HTTPResponses.handleAuthLoginGET(req, res);
 });
 
 app.post('/auth/login',
@@ -159,52 +138,18 @@ app.post('/auth/login',
 );
 
 app.get('/auth/register', function (req, res) {
-   res.render('register');
+   HTTPResponses.handleAuthRegisterGET(req, res);
 });
 
 app.post('/auth/register', function (req, res) {
-   let cryptography = Util.saltPassword(req.body.password);
-   // Cast POST data to userData
-   let userData = new Util.UserData();
-   userData.userId = DatabaseAccess.util.generateUserId();
-   userData.username = req.body.username;
-   userData.displayName = req.body.username;
-   userData.email = req.body.email;
-   userData.password = cryptography.password;
-   userData.salt = cryptography.salt;
-   userData.subscriptions = [];
-   userData.active = true;
-   userData.type = Util.UserDataTypes.ALL_INFO;
-
-   if (Util.notAllowedUsernames.includes(userData.username)){
-      res.render('register',{
-         error: "This username is not allowed"
-      });
-   }
-   // Check if the user already is taken
-   DatabaseAccess.find.userAuthExistsByUserData(userData, function (userExists, message){
-      if (message !== "ok") {
-         res.render('register',{
-            error: message
-         });
-         return;
-      }
-      // Add the user to the database
-      DatabaseAccess.write.addUserAllInfo(userData, function (err) {
-         if (err) {
-            console.log(err);
-            res.redirect('/auth/register');
-         } else {
-            res.redirect('/auth/login');
-         }
-      });
-   });
+   HTTPResponses.handleAuthRegisterPOST(req, res);
 });
 
 app.get('/auth/logout', function (req, res) {
-   req.logout();
-   res.redirect('/');
+   HTTPResponses.handleAuthLogoutGET(req, res);
 });
+
+// ---- end of RESPONSES AND REQUESTS ----
 
 // RUN SERVER TESTS BEFORE STARTING
 Tests.run();
