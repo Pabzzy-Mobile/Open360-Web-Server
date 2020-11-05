@@ -22,7 +22,7 @@ let RedisClient = redis.createClient({
 });
 
 // Require our core library
-let { DatabaseAccess, Tests, Util, HTTPResponses} = require("./core");
+let { DatabaseAccess, Tests, Util, HTTPResponses} = require("./core/");
 
 // Tell the server what port it should use. 4000 is for testing purposes
 const PORT = parseInt(process.env.PORT) || 4000;
