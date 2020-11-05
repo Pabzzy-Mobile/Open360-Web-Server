@@ -1,6 +1,11 @@
 // Require the crypto module
 const crypto = require("crypto");
 
+// Define this object's info
+const moduleInfo = {};
+moduleInfo.name = "Util";
+moduleInfo.description = "This module includes a bunch of utility methods and objects of Open360";
+
 /**
  * @type UserData
  * @property {UserDataTypes} type - Defines what type this userdata
@@ -25,7 +30,7 @@ class UserData {
      */
     constructor() {
         this.type = UserDataTypes.ALL_INFO;
-        this.active = true;
+        this.active = false;
         this.userId = "";
         this.username = "";
         this.email = "";
@@ -68,6 +73,8 @@ const UserDataTypes = {
  * @property {string} title - Title of the stream
  * @property {string} description - Description of the channel
  * @property {string} streamKey - StreamKey of the channel
+ * @property {string[]} tags - Tags of this stream
+ * @property {string} directory - Category/Location this channel's stream is
  */
 class ChannelData {
     constructor() {
@@ -77,6 +84,8 @@ class ChannelData {
         this.title = "";
         this.description = "";
         this.streamKey = "";
+        this.tags = [];
+        this.directory = "";
     }
 
     cast(obj) {

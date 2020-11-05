@@ -1,13 +1,10 @@
-const Util = require("./util");
+const Util = require("./util.js");
 const DatabaseAccess = require("./database/");
 
-// Define the Tests module
-let Tests = {};
-
 // Define this object's info
-Tests.moduleInfo = {};
-Tests.moduleInfo.name = "Server Tests";
-Tests.moduleInfo.description = "This module tests the various components of Open360";
+const moduleInfo = {};
+moduleInfo.name = "Server Tests";
+moduleInfo.description = "This module tests the various components of Open360";
 
 /**
  * @summary Run the server tests.
@@ -15,14 +12,14 @@ Tests.moduleInfo.description = "This module tests the various components of Open
  * These include, but are not limited to:
  * - Database Codebase Tests
  */
-Tests.run = function () {
+function runTests() {
     // Array contains the results of all the Database Tests
     let databaseTests = [];
 
     // Run the Insert Delete Test
-    databaseTests.push(Tests.DatabaseTests.testInsertDelete());
+    databaseTests.push(testInsertDelete());
 
-    if (!Tests.hasPassed(databaseTests)) {
+    if (!hasPassed(databaseTests)) {
         throw new Error("Database Tests did not pass. Check output.");
     } else {
         console.info("Database Tests Passed");
@@ -35,7 +32,7 @@ Tests.run = function () {
  * @param testArray - array with the result boolean of tests
  * @returns {boolean}
  */
-Tests.hasPassed = function (testArray){
+function hasPassed(testArray) {
     // Define the return variable
     let passed = true;
     // Loop through each test in the array and check if they passed
@@ -46,14 +43,11 @@ Tests.hasPassed = function (testArray){
     return passed;
 }
 
-// This object is were all the tests for the database module are defined in
-Tests.DatabaseTests = {};
-
 /**
  * Inserts a user into the database and deletes it
  * @returns {boolean} - Returns true if the test completed successfully
  */
-Tests.DatabaseTests.testInsertDelete = function (){
+function testInsertDelete() {
     let insertPassed = true;
     let deletePassed = true;
     let userToTest = new Util.UserData();
@@ -64,30 +58,32 @@ Tests.DatabaseTests.testInsertDelete = function (){
     userToTest.password = "f77d7271e109fc01ea3bee60052b9e671886cadebec3a6aea3f1a2b1c42014b8"
     userToTest.salt = "6RtAMLCs";
     // Add the user to the database
-    DatabaseAccess.write.addUserAuth(userToTest, function (err){
-        if (err) {
-            console.error(err);
-            insertPassed &= false;
-        }
-    });
+    DatabaseAccess.write.addUserAuth(userToTest)
+        .then(success => {
+            insertPassed &= success;
+        })
+        .catch(err => console.error(err));
     // Find the user and check if it was successfully added
-    DatabaseAccess.find.userAuthByUserId(userToTest.userId, function (err, user){
-        // Check if the user can be found
-        insertPassed = user.userId === userToTest.userId;
-        insertPassed &= user.username === userToTest.username;
-    });
+    DatabaseAccess.find.userAuthByUserId(userToTest.userId)
+        .then(user => {
+            // Check if the user can be found
+            insertPassed = user.userId === userToTest.userId;
+            insertPassed &= user.username === userToTest.username;
+        })
+        .catch(err => console.error(err));
     // Remove the user from the database
-    DatabaseAccess.write.removeUserAuth(userToTest.userId, true, function (err) {
-        if (err) {
-            console.error(err);
-            insertPassed &= false;
-        }
-    });
+    DatabaseAccess.write.removeUserAuth(userToTest.userId, true)
+        .then(success => {
+            insertPassed &= success;
+        })
+        .catch(err => console.error(err));
     // Check if the user is still on the database
-    DatabaseAccess.find.userAuthByUserId(userToTest.userId, function (err, user){
-        // Check if the user can be found
-        deletePassed = user === null;
-    });
+    DatabaseAccess.find.userAuthByUserId(userToTest.userId)
+        .then(user => {
+            // Check if the user can be found
+            deletePassed = user === null;
+        })
+        .catch(err => console.error(err));
     // Check if the tests passed and send some error info if not
     if (!insertPassed) console.error("Database User insertion didn't pass");
     if (!deletePassed) console.error("Database User deletion didn't pass");
@@ -95,4 +91,7 @@ Tests.DatabaseTests.testInsertDelete = function (){
 }
 
 // Export the module
-module.exports = Tests;
+module.exports = {
+    moduleInfo,
+    run: runTests
+};

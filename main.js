@@ -32,33 +32,31 @@ const PORT = parseInt(process.env.PORT) || 4000;
 passport.use('local', new LocalStrategy(
     function (username, password, cb) {
        // Find the user's Auth information
-       DatabaseAccess.find.userAuthByUsername(username, function (err, userData) {
+       DatabaseAccess.find.userAuthByUsername(username)
+           .then(userData => {
+              if (userData == null) {
+                 return cb(null, false, {
+                    message: "Username was not found"
+                 });
+              }
 
-          if (err) {
-             // console.log("Failed to login");
-             return cb(err, false, {
-                message: "There wan an error in the operation"
-             });
-          }
+              let cryptography = Util.saltPassword(password, userData.salt);
 
-          if (userData == null) {
-             return cb(null, false, {
-                message: "Username was not found"
-             });
-          }
+              if (userData.password !== cryptography.password) {
+                 return cb(null, false, {
+                    message: "Password is incorrect"
+                 });
+              }
 
-          let cryptography = Util.saltPassword(password, userData.salt);
+              let user = { userId: userData.userId, username: userData.username, displayName: userData.displayName };
 
-          if (userData.password !== cryptography.password) {
-             return cb(null, false, {
-                message: "Password is incorrect"
-             });
-          }
-
-          let user = { userId: userData.userId, username: userData.username, displayName: userData.displayName };
-
-          return cb(null, user);
-       });
+              return cb(null, user);
+            })
+            .catch(err => {
+               return cb(err, false, {
+                  message: "There wan an error in the operation"
+               });
+            });
     })
 );
 
@@ -67,15 +65,14 @@ passport.serializeUser(function (user, cb) {
 });
 
 passport.deserializeUser(function (id, cb) {
-   DatabaseAccess.find.userDetailsByUserId(id, function (err, userData) {
-      if (err) {
-         return cb(err);
-      }
-
-      let user = { userId: userData.userId, username: userData.username, displayName: userData.displayName };
-
-      cb(null, user);
-   });
+   DatabaseAccess.find.userDetailsByUserId(id)
+       .then(userData => {
+          let user = { userId: userData.userId, username: userData.username, displayName: userData.displayName };
+          cb(null, user);
+       })
+       .catch(err => {
+          return cb(err);
+       })
 });
 
 // Set nunjucks as the render engine
@@ -132,7 +129,7 @@ app.get('/auth/login', function (req, res) {
 
 app.post('/auth/login',
     passport.authenticate('local', {
-       failureRedirect: '/login',
+       failureRedirect: '/auth/login',
        successRedirect: '/'
     })
 );
@@ -149,10 +146,20 @@ app.get('/auth/logout', function (req, res) {
    HTTPResponses.handleAuthLogoutGET(req, res);
 });
 
+// ALGORITHM REQUESTS
+
+app.get('/algo/channels/featured', function (req, res){
+   HTTPResponses.handleAlgoChannelsFeaturedGET(req, res);
+});
+
+// DEBUG REQUESTS
+
+app.get('/debug/runTests', function (req, res) {
+   Tests.run();
+})
+
 // ---- end of RESPONSES AND REQUESTS ----
 
-// RUN SERVER TESTS BEFORE STARTING
-Tests.run();
 
 // SERVER LISTEN
 

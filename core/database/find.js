@@ -1,274 +1,328 @@
 // Require the util module
-const {UserData, UserDataTypes, ChannelData} = require("../util.js");
+const {UserData, UserDataTypes, ChannelData, ChannelStatus} = require("../util.js");
 // Require other database files
 //const util = require("./util.js");
+const {retrieveDocOne, retrieveDocManyAll, retrieveDocManyLimit} = require("./database.js");
 //const write = require("./write.js");
-const {retrieveDocOne, retrieveDocManyAll} = require("./database");
 
 // ------------------------- * Find Methods * -------------------------
 
 // ------------------------- User Related -------------------------
 
 /**
- * @callback userFindCallback
- * @param {Error} err
- * @param {UserData} result
- */
-
-/**
  * Find user details by userId
  * @param userId {string} - The userId to look for
- * @param callback {userFindCallback} - The callback function
+ * @return {Promise<UserData>}
  */
- function userDetailsByUserId (userId, callback){
-    // Set the query
-    let query = { userId: userId };
-    // Execute the query
-    retrieveDocOne("user_info", query, function (err, result){
-        if (err != null) {
-            callback(err, null);
-            return;
-        }
-        // Create an empty UserData object
-        let userData = new UserData();
-        // Cast the result to UserData object
-        userData = userData.cast(result);
-        // Set the data type to user auth
-        userData.type = UserDataTypes.JUST_DETAILS;
-        // Pass the result to the callback function
-        callback(null, userData);
-    });
+function userDetailsByUserId (userId){
+     return new Promise((resolve, reject) => {
+         // Set the query
+         let query = { userId: userId };
+         // Execute the query
+         retrieveDocOne("user_info", query)
+             .then(result => {
+                // Create an empty UserData object
+                let userData = new UserData();
+                // Cast the result to UserData object
+                userData = userData.cast(result);
+                // Set the data type to user auth
+                userData.type = UserDataTypes.JUST_DETAILS;
+                // Pass the result to the callback function
+                resolve( userData);
+             })
+             .catch(err => reject(err));
+     });
 }
 
 /**
  * Find user auth by userId
  * @param userId {string} - The userId to look for
- * @param callback {userFindCallback} - The callback function
+ * @return {Promise<UserData>}
  */
- function userAuthByUserId (userId, callback){
-    // Set the query
-    let query = { userId: userId };
-    // Execute the query
-    retrieveDocOne("user_auth", query, function (err, result){
-        if (err != null) {
-            callback(err, null);
-            return;
-        }
-        // Create an empty UserData object
-        let userData = new UserData();
-        // Cast the result to UserData object
-        userData = userData.cast(result);
-        // Set the data type to user auth
-        userData.type = UserDataTypes.JUST_AUTH;
-        // Pass the result to the callback function
-        callback(null, userData);
-    });
+function userAuthByUserId (userId){
+     return new Promise((resolve, reject) => {
+         // Set the query
+         let query = { userId: userId };
+         // Execute the query
+         retrieveDocOne("user_auth", query)
+             .then(result => {
+                 // Check if the user was found
+                 if (result == null) {
+                     resolve(null);
+                     return;
+                 }
+                // Create an empty UserData object
+                let userData = new UserData();
+                // Cast the result to UserData object
+                userData = userData.cast(result);
+                // Set the data type to user auth
+                userData.type = UserDataTypes.JUST_AUTH;
+                // Pass the result to the callback function
+                resolve(userData);
+             })
+             .catch(err => reject(err));
+     });
 }
-
-/**
- * @callback userCheckCallback
- * @param {boolean} result of the query
- */
 
 /**
  * Returns true if user ID already exists
  * @param userId {string|UserData}
- * @param [callback] {userCheckCallback}
+ * @return {Promise<boolean>}
  */
- function userAuthExists (userId, callback){
+function userAuthExists (userId){
     if (typeof userId == "UserData") {
-        userAuthExistsByUserData(userId, callback);
+         return new Promise((resolve, reject) => {
+             userAuthExistsByUserData(userId)
+                 .then(exists => resolve(exists))
+                 .catch(err => reject(err))
+         });
+    } else {
+        return new Promise((resolve, reject) => {
+            // Set the query
+            let query = { userId: userId };
+            // Execute the query
+            retrieveDocOne("user_auth", query)
+                .then(result => {
+                    // This function doesn't expressively need a callback
+                    resolve(result != null);
+                })
+                .catch(err => reject(err));
+        });
     }
-    // Set the query
-    let query = { userId: userId };
-    // Execute the query
-    retrieveDocOne("user_auth", query, function (err, result){
-        if (err != null) {
-            callback(err, null);
-            return;
-        }
-        // This function doesn't expressively need a callback
-        if (callback != null && typeof callback == "function") callback(result != null);
-        // Return if the user was found
-        return result != null;
-    });
 }
-
-/**
- * @callback userdataCheckCallback
- * @param {boolean} result of the query
- * @param {string} message
- */
 
 /**
  * Returns true if user ID already exists
  * @param userData {UserData}
- * @param callback {userdataCheckCallback}
+ * @return {Promise<boolean>}
  */
- function userAuthExistsByUserData (userData, callback){
-    // Set the queries
-    let filter = { $or:
-            [
-                {username: userData.username},
-                {email: userData.email}
-            ]
-    };
-    // Execute the queries
-    retrieveDocManyAll("user_info", filter, function (err, result){
-        if (err != null) {
-            callback(false, "An error has occurred");
-            return;
-        }
-        // Define the return message
-        let message = "ok";
-        // Go through each result and check if there is collisions
-        result.forEach(function (userFound) {
-            // Create an empty UserData object
-            let foundUserData = new UserData();
-            // Cast the result to UserData object
-            foundUserData = foundUserData.cast(userFound);
-            // Set the data type to user auth
-            foundUserData.type = UserDataTypes.JUST_AUTH;
-            // Check if the username is taken
-            if (foundUserData.username === userData.username) message = "Username already taken";
-            // Check if the email is taken
-            if (foundUserData.email === userData.email) message = "Email already taken";
-        });
-        // This function doesn't expressively need a callback
-        if (callback != null && typeof callback == "function") callback(result.length === 0, message);
-        // Return if the user was found
-        return result.length === 0;
+function userAuthExistsByUserData (userData){
+    return new Promise((resolve, reject) => {
+        // Set the queries
+        let filter = { $or:
+                [
+                    {username: userData.username},
+                    {email: userData.email}
+                ]
+        };
+        // Execute the queries
+        // TODO
+        //  use "retrieveDocManyEach" since "retrieveDocManyAll" hangs the main thread because of the methods it uses
+        retrieveDocManyAll("user_info", filter)
+            .then(result => {
+                // Define the return message
+                let message = "ok";
+                // Go through each result and check if there is collisions
+                result.forEach(function (userFound) {
+                    // Create an empty UserData object
+                    let foundUserData = new UserData();
+                    // Cast the result to UserData object
+                    foundUserData = foundUserData.cast(userFound);
+                    // Set the data type to user auth
+                    foundUserData.type = UserDataTypes.JUST_AUTH;
+                    // Check if the username is taken
+                    if (foundUserData.username === userData.username) message = "Username already taken";
+                    // Check if the email is taken
+                    if (foundUserData.email === userData.email) message = "Email already taken";
+                });
+                resolve(message);
+            })
+            .catch(err => reject(err));
     });
 }
 
 /**
  * Find user auth by username
  * @param username {string} - The username to look for
- * @param callback {userFindCallback} - The callback function
+ * @return {Promise<UserData>}
  */
- function userAuthByUsername (username, callback){
-    // WARN: This function gets the userId from user_info and then uses that to get the user_auth. This is not good
-    // Set the query for the user info
-    let query = { username: username };
-    // Execute the query
-    retrieveDocOne("user_auth", query, function (err, result){
-        // Check if the user was found
-        if (result == null) {
-            callback(null, null);
-            return;
-        }
-        // Create an empty UserData object
-        let userAuthData = new UserData();
-        // Cast the result to UserData object
-        userAuthData = userAuthData.cast(result);
-        // Set the data type to user auth
-        userAuthData.type = UserDataTypes.JUST_AUTH;
-        // Pass the result to the callback function
-        callback(null, userAuthData);
-    });
+function userAuthByUsername (username){
+     return new Promise((resolve, reject) => {
+         // WARN: This function gets the userId from user_info and then uses that to get the user_auth. This is not good
+         // Set the query for the user info
+         let query = { username: username };
+         // Execute the query
+         retrieveDocOne("user_auth", query)
+             .then(result => {
+                 // Check if the user was found
+                 if (result == null) {
+                     resolve(null);
+                     return;
+                 }
+                // Create an empty UserData object
+                let userAuthData = new UserData();
+                // Cast the result to UserData object
+                userAuthData = userAuthData.cast(result);
+                // Set the data type to user auth
+                userAuthData.type = UserDataTypes.JUST_AUTH;
+                // Pass the result to the callback function
+                resolve(userAuthData);
+             })
+             .catch(err => reject(err));
+     });
 }
-
-/**
- * @callback userAuthGetActiveCallback
- * @param {Error} err
- * @param {boolean} active
- */
 
 /**
  * Get the active state of the account
  * @param {string} userId
- * @param {userAuthGetActiveCallback} callback
+ * @return {Promise<boolean>}
  */
-function userAuthGetActive (userId, callback){
-    // Set the query for the user info
-    let query = { userId: userId };
-    // Execute the query
-    retrieveDocOne("user_auth", query, function (err, result){
-        // Check if the user was found
-        if (result == null || err != null) {
-            callback(new Error("User was not found"), null);
-            return;
-        }
-        // Create an empty UserData object
-        let userAuthData = new UserData();
-        // Cast the result to UserData object
-        userAuthData = userAuthData.cast(result);
-        // Set the data type to user auth
-        userAuthData.type = UserDataTypes.JUST_AUTH;
-        // Pass the result to the callback function
-        callback(null, userAuthData.active);
+function userAuthGetActive (userId){
+    return new Promise((resolve, reject) => {
+        // Set the query for the user info
+        let query = { userId: userId };
+        // Execute the query
+        retrieveDocOne("user_auth", query)
+            .then(result => {
+                // Check if the user was found
+                if (result == null) {
+                    resolve(null);
+                    return;
+                }
+                // Create an empty UserData object
+                let userAuthData = new UserData();
+                // Cast the result to UserData object
+                userAuthData = userAuthData.cast(result);
+                // Set the data type to user auth
+                userAuthData.type = UserDataTypes.JUST_AUTH;
+                // Pass the result to the callback function
+                resolve(userAuthData.active);
+            })
+            .catch(err => reject(err));
     });
 }
 
 /**
  * Retrieves the user's details by username
  * @param username {string} - The username to look for
- * @param callback {userFindCallback} - The callback function
+ * @return {Promise<UserData>}
  */
- function userByUsername (username, callback){
-    // Set the query
-    let query = { username: username };
-    // Execute the query
-    retrieveDocOne("user_info", query, function (err, result){
-        // Check if the user was found
-        if (result == null) {
-            callback(null, null);
-            return;
-        }
-        // Create an empty UserData object
-        let userData = new UserData();
-        // Cast the result to UserData object
-        userData = userData.cast(result);
-        // Set the data type to user auth
-        userData.type = UserDataTypes.JUST_DETAILS;
-        // Pass the result to the callback function
-        callback(null, userData);
+ function userByUsername (username){
+    return new Promise((resolve, reject) => {
+        // Set the query
+        let query = { username: username };
+        // Execute the query
+        retrieveDocOne("user_info", query)
+            .then(result => {
+                // Check if the user was found
+                if (result == null) {
+                    resolve(null);
+                    return;
+                }
+                // Create an empty UserData object
+                let userData = new UserData();
+                // Cast the result to UserData object
+                userData = userData.cast(result);
+                // Set the data type to user auth
+                userData.type = UserDataTypes.JUST_DETAILS;
+                // Pass the result to the callback function
+                resolve(userData);
+            })
+            .catch(err => {
+                console.error(err);
+                reject(err);
+            });
     });
 }
 
 // ------------------------- Channel Related -------------------------
 
 /**
- * @callback findChannelCallback
- * @param {Error} err
- * @param {ChannelData} channelData
- */
-
-/**
  * Retrieves the channel from the username given
  * This method is twice slower than find channel by userId
  * @param {string} username
- * @param {findChannelCallback} callback
+ * @return {Promise<UserData>}
  */
- function channelByUsername (username, callback){
-    // Get the user
-    userByUsername(username, function (err, result) {
-        channelByUserId(result.userId, callback);
+function channelByUsername (username){
+    return new Promise((resolve, reject) => {
+        // Get the user
+        userByUsername(username)
+            .then(result => {
+                channelByUserId(result.userId)
+                    .then(result => {
+                        resolve(result);
+                    })
+                    .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
     });
 }
 
 /**
  * Retrieves the channel from the userId given
  * @param {string} userId
- * @param {findChannelCallback} callback
+ * @return {Promise<UserData>}
  */
- function channelByUserId (userId, callback){
-    // Set the query
-    let query = { userId: userId };
-    retrieveDocOne("channel_info", query, function (err, result) {
-        // Check if the user was found
-        if (result == null) {
-            callback(null, null);
-            return;
-        }
-        // Create an empty UserData object
-        let channelData = new ChannelData();
-        // Cast the result to UserData object
-        channelData = channelData.cast(result);
-        // Pass the result to the callback function
-        callback(null, channelData);
+function channelByUserId (userId){
+    return new Promise((resolve, reject) => {
+        // Set the query
+        let query = { userId: userId };
+        retrieveDocOne("channel_info", query)
+            .then(result => {
+                // Check if the user was found
+                if (result == null) {
+                    resolve(null);
+                    return;
+                }
+                // Create an empty UserData object
+                let channelData = new ChannelData();
+                // Cast the result to UserData object
+                channelData = channelData.cast(result);
+                // Pass the result to the callback function
+                resolve(channelData);
+            })
+            .catch(err => reject(err));
     });
 }
+
+/**
+ * Checks if the stream key exists
+ * @param {string} streamKey
+ * @return {Promise<boolean>}
+ */
+function channelStreamKeyExists(streamKey) {
+    return new Promise((resolve, reject) => {
+        // Set the query
+        let query = { streamKey: streamKey }
+        // Execute the query
+        retrieveDocOne("channel_data", query)
+            .then(result => resolve(result != null))
+            .catch(err => reject(err));
+     });
+}
+
+// ------------------------- Algorithm Related -------------------------
+
+/**
+ * Retrieves the current online channels on the database
+ * @return {Promise<ChannelData[]>}
+ */
+function algoChannelsCurrentOnline() {
+    return new Promise((resolve, reject) => {
+        // Set the query
+        let query = { channelStatus: ChannelStatus.ONLINE }
+        // TODO:
+        //  start caching this, it's not optimal to always access the database on every request.
+        retrieveDocManyLimit("channel_data", query, 5)
+            .then((results) => {
+                // Define the return array
+                let resultArray = [];
+                // Cast each of the results to a channelData object
+                results.forEach((obj) => {
+                    // Define the channel for this document
+                    let channel = new ChannelData();
+                    // Unbox it
+                    channel = channel.cast(obj);
+                    // Add it to the results array
+                    resultArray.push(channel);
+                });
+                // Successful callback
+                resolve(resultArray);
+            })
+            .catch(err => reject(err));
+    });
+}
+
 
 module.exports = {
     userDetailsByUserId,
@@ -279,5 +333,7 @@ module.exports = {
     userAuthByUserId,
     userAuthGetActive,
     channelByUserId,
-    channelByUsername
+    channelByUsername,
+    channelStreamKeyExists,
+    algoChannelsCurrentOnline,
 }

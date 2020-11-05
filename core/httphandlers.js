@@ -1,8 +1,8 @@
-const Util = require("./util.js");
+const {UserData, UserDataTypes, ChannelData, ChannelStatus, NotAllowedUsernames, saltPassword} = require("./util.js");
 const DatabaseAccess = require("./database/");
 
 // Define this object's info
-let moduleInfo = {};
+const moduleInfo = {};
 moduleInfo.name = "HTTP Handlers";
 moduleInfo.description = "This module handles the HTTP GET and POST requests of Open360";
 
@@ -23,28 +23,38 @@ function handleChannelByUsernameGET(req, res){
     // Check if the username is not null
     if (username != null) {
         // Find the user
-        DatabaseAccess.find.userByUsername(username, function (err, user) {
-            if (user === {} || user === null || user.empty()) {
+        DatabaseAccess.find.userByUsername(username)
+            .then(user => {
+                if (user === {} || user === null || user.empty()) {
+                    // Render the channel page
+                    res.render("channel", {
+                        user: req.user,
+                        channel: false,
+                        req: JSON.stringify(req.user),
+                        data: JSON.stringify(user) || null,
+                        message: 'Search for a user using /&lt;username&gt;\nThe current query is ' + JSON.stringify(username)
+                    });
+                    return;
+                }
+                // Render the channel page
+                res.render("channel", {
+                    user: req.user,
+                    channel: user,
+                    req: JSON.stringify(req.user),
+                    data: JSON.stringify(user) || null,
+                    message: null
+                });
+            })
+            .catch(err => {
                 // Render the channel page
                 res.render("channel", {
                     user: req.user,
                     channel: false,
                     req: JSON.stringify(req.user),
                     data: JSON.stringify(user) || null,
-                    message: 'Search for a user using /&lt;username&gt;\nThe current query is ' + JSON.stringify(username)
+                    message: err
                 });
-                return;
-            }
-            // Render the channel page
-            res.render("channel", {
-                user: req.user,
-                channel: user,
-                req: JSON.stringify(req.user),
-                data: JSON.stringify(user) || null,
-                message: null
-            });
-            return;
-        });
+            })
     } else {
         // Render the channel page
         res.render("channel", {
@@ -54,16 +64,25 @@ function handleChannelByUsernameGET(req, res){
             data: JSON.stringify(user) || null,
             message: 'Search for a user using /&lt;username&gt;\nThe current query is ' + JSON.stringify(username)
         });
-        return;
     }
 }
 
-/*private*/ function sendaaa(){}
-
 // ALGORITHM RESPONSES
 
-function handleAlgorithmFeaturedChannelsGET(req, res){
+function handleAlgoChannelsFeaturedGET(req, res){
+    let data = {};
 
+    DatabaseAccess.find.algoChannelsCurrentOnline()
+        .then((results) => {
+            data.channels = results;
+            // Send the data back
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            console.error(err);
+            data.error = err.name;
+            res.status(500).json(data);
+        });
 }
 
 // AUTHENTICATION RESPONSES
@@ -84,15 +103,15 @@ function handleAuthLogoutGET(req, res){
 // DOESN'T WORK???
 function handleAuthLoginPOST(req, res, passport){
     passport.authenticate('local', {
-        failureRedirect: '/login',
+        failureRedirect: '/auth/login',
         successRedirect: '/'
     });
 }
 
 function handleAuthRegisterPOST(req, res){
-    let cryptography = Util.saltPassword(req.body.password);
+    let cryptography = saltPassword(req.body.password);
     // Cast POST data to userData
-    let userData = new Util.UserData();
+    let userData = new UserData();
     userData.userId = DatabaseAccess.util.generateUserId();
     userData.username = req.body.username;
     userData.displayName = req.body.username;
@@ -101,41 +120,61 @@ function handleAuthRegisterPOST(req, res){
     userData.salt = cryptography.salt;
     userData.subscriptions = [];
     userData.active = true;
-    userData.type = Util.UserDataTypes.ALL_INFO;
+    userData.type = UserDataTypes.ALL_INFO;
+    // Create channel data
+    let channelData = new ChannelData();
+    channelData.channelStatus = ChannelStatus.OFFLINE;
+    channelData.streamKey = DatabaseAccess.util.generateStreamKey();
+    channelData.userId = userData.userId;
+    channelData.title = "Stream Title";
+    channelData.description = "Stream Description";
+    channelData.directory = "universal";
 
-    if (Util.NotAllowedUsernames.includes(userData.username)){
+    if (NotAllowedUsernames.includes(userData.username)){
         res.render('register',{
             error: "This username is not allowed"
         });
+        return;
     }
     // Check if the user already is taken
-    DatabaseAccess.find.userAuthExistsByUserData(userData, function (userExists, message){
-        if (message !== "ok") {
-            res.render('register',{
-                error: message
-            });
-            return;
-        }
-        // Add the user to the database
-        DatabaseAccess.write.addUserAllInfo(userData, function (err) {
-            if (err) {
-                console.log(err);
-                res.redirect('/auth/register');
-            } else {
-                res.redirect('/auth/login');
+    DatabaseAccess.find.userAuthExistsByUserData(userData)
+        .then(message => {
+            if (message !== "ok") {
+                res.render('register',{
+                    error: message
+                });
+                return;
             }
-        });
-        // Add the user's channel to the database
-        DatabaseAccess.write.addChannel(channelData, function (err){
-
-        });
-    });
+            let promises = [
+                // Add the user to the database
+                DatabaseAccess.write.addUserAllInfo(userData),
+                // Add the user's channel to the database
+                DatabaseAccess.write.addChannel(channelData)
+            ]
+            Promise.all(promises)
+                .then(data => {
+                    res.redirect('/auth/login');
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.render('register',{
+                        error: "An Internal error happened. Oops..."
+                    });
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.render('register',{
+                error: "An Internal error happened. Oops..."
+            });
+        })
 }
 
 module.exports = {
+    moduleInfo,
     handleHomepageGET,
     handleChannelByUsernameGET,
-    handleAlgorithmFeaturedChannelsGET,
+    handleAlgoChannelsFeaturedGET,
     handleAuthLoginGET,
     handleAuthRegisterGET,
     handleAuthLogoutGET,
