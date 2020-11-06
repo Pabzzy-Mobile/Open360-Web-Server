@@ -55,16 +55,8 @@ let createChannelElement = function (channelData) {
     channelTitle.innerText = channelData.title;
     channelRoot.append(channelTitle);
 
-    let channelUserElement = document.createElement("a");
-    channelUserElement.setAttribute("href", "/" + channelData.username);
-    channelUserElement.classList.add("channel-user");
-    let channelUserPic = document.createElement("div");
-    channelUserPic.style.backgroundImage = "url(\"/public/pp/" + channelData.userId + "_pp.png\")";
-    channelUserElement.append(channelUserPic);
-    let channelUsername = document.createElement("p");
-    channelUsername.innerText = channelData.username;
-    channelUserElement.append(channelUsername);
-    channelRoot.append(channelUserElement);
+    let channelUserCard = createUserCardElement({userId: channelData.userId, username: channelData.username});
+    channelRoot.append(channelUserCard);
 
     let channelTagList = document.createElement("div");
     channelTagList.classList.add("channel-tag-list");

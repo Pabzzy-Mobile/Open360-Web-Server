@@ -93,12 +93,14 @@ function handleAlgoUserByIdGET(req, res) {
     DatabaseAccess.find.userDetailsByUserId(userId)
         .then((result) => {
             if (result == null){
-                data.user = result;
-                // Send the data back
-                res.status(200).json(data);
-            } else {
                 // Send 404 user not found
                 res.status(404).json({message: "not found"});
+            } else {
+                data.userId = result.userId;
+                data.username = result.username;
+                data.displayName = result.displayName;
+                // Send the data back
+                res.status(200).json(data);
             }
         })
         .catch(err => {

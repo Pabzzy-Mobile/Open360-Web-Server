@@ -2,3 +2,24 @@
   padding: 0;
   margin: 0;
 }
+
+.pop-card {
+  padding: 2px;
+  background: lightgrey;
+}
+
+.channel-container {
+  padding: 6px;
+  display: inline-block;
+  border: 1px solid black;
+}
+
+.pop-card{
+  .pop-card-username{
+    color: #343434;
+    font-size: 8px;
+  }
+  .pop-card-displayName{
+    font-weight: bold;
+  }
+}
