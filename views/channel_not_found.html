@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stamp.tv</title>
+</head>
+<body>
+{% include "includes/header.html" %}
+The channel was not found <a href="/">return to the home page</a>
+{% if message %}
+<pre>{{message}}</pre>
+{% endif %}
+</body>
+</html>

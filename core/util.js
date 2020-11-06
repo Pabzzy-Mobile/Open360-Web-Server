@@ -68,6 +68,7 @@ const UserDataTypes = {
 /**
  * @type {Object} ChannelData
  * @property {string} userId - Identifier of the owner of the channel
+ * @property {string} username - Username of the owner of the channel
  * @property {ChannelStatus} channelStatus - Online status of the channel
  * @property {ChannelModule[]} modules - Current modules this channel has
  * @property {string} title - Title of the stream
@@ -79,6 +80,7 @@ const UserDataTypes = {
 class ChannelData {
     constructor() {
         this.userId = "";
+        this.username = "";
         this.channelStatus = ChannelStatus.UNKNOWN;
         this.modules = [];
         this.title = "";

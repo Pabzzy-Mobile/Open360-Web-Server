@@ -149,6 +149,7 @@ function addChannel (channelData) {
         // Make the document
         let doc = {
             userId: channelData.userId,
+            username: channelData.username,
             streamKey: channelData.streamKey,
             channelStatus: channelData.channelStatus,
             modules: channelData.modules,

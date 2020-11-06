@@ -21,14 +21,19 @@ function userDetailsByUserId (userId){
          // Execute the query
          retrieveDocOne("user_info", query)
              .then(result => {
-                // Create an empty UserData object
-                let userData = new UserData();
-                // Cast the result to UserData object
-                userData = userData.cast(result);
-                // Set the data type to user auth
-                userData.type = UserDataTypes.JUST_DETAILS;
-                // Pass the result to the callback function
-                resolve( userData);
+                 // Check if the user was found
+                 if (result == null) {
+                     resolve(null);
+                     return;
+                 }
+                 // Create an empty UserData object
+                 let userData = new UserData();
+                 // Cast the result to UserData object
+                 userData = userData.cast(result);
+                 // Set the data type to user auth
+                 userData.type = UserDataTypes.JUST_DETAILS;
+                 // Pass the result to the callback function
+                 resolve( userData);
              })
              .catch(err => reject(err));
      });

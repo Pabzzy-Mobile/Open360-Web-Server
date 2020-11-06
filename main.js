@@ -152,6 +152,10 @@ app.get('/algo/channels/featured', function (req, res){
    HTTPResponses.handleAlgoChannelsFeaturedGET(req, res);
 });
 
+app.get('/algo/users/id/:id', function (req, res){
+    HTTPResponses.handleAlgoUserByIdGET(req, res);
+});
+
 // DEBUG REQUESTS
 
 app.get('/debug/runTests', function (req, res) {

@@ -7,18 +7,13 @@
 </head>
 
 <body>
+    {% include "includes/header.html" %}
     <h1>Home</h1>
-    {% if user %}
-    Hello {{user.displayName}} ({{user.username}}),
-    <a href="/auth/logout">logout</a>
-    {% else %}
-    Please login
-    <a href="/auth/login">here</a>
-    {% endif %}
     <div class="channels-featured"></div>
+    <script src="/public/javascript/feature-users.js"></script>
     <script src="/public/javascript/feature-home-channels.js"></script>
     <script type="text/javascript">
-        requestFeaturedChannels().then((featuredChannels) => {
+        requestAndCreateChannelElements().then((featuredChannels) => {
             console.log(featuredChannels);
         }).catch(err => {
             console.error(err);

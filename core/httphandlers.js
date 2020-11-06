@@ -26,8 +26,8 @@ function handleChannelByUsernameGET(req, res){
         DatabaseAccess.find.userByUsername(username)
             .then(user => {
                 if (user === {} || user === null || user.empty()) {
-                    // Render the channel page
-                    res.render("channel", {
+                    // Render the channel not found page
+                    res.render("channel_not_found", {
                         user: req.user,
                         channel: false,
                         req: JSON.stringify(req.user),
@@ -46,8 +46,8 @@ function handleChannelByUsernameGET(req, res){
                 });
             })
             .catch(err => {
-                // Render the channel page
-                res.render("channel", {
+                // Render the channel not found page
+                res.render("channel_not_found", {
                     user: req.user,
                     channel: false,
                     req: JSON.stringify(req.user),
@@ -71,12 +71,35 @@ function handleChannelByUsernameGET(req, res){
 
 function handleAlgoChannelsFeaturedGET(req, res){
     let data = {};
-
+    // TODO
+    //  Cache data from these methods
     DatabaseAccess.find.algoChannelsCurrentOnline()
         .then((results) => {
             data.channels = results;
             // Send the data back
             res.status(200).json(data);
+        })
+        .catch(err => {
+            console.error(err);
+            data.error = err.name;
+            res.status(500).json(data);
+        });
+}
+
+function handleAlgoUserByIdGET(req, res) {
+    let data = {};
+    // Get the userId
+    let userId = req.params.id;
+    DatabaseAccess.find.userDetailsByUserId(userId)
+        .then((result) => {
+            if (result == null){
+                data.user = result;
+                // Send the data back
+                res.status(200).json(data);
+            } else {
+                // Send 404 user not found
+                res.status(404).json({message: "not found"});
+            }
         })
         .catch(err => {
             console.error(err);
@@ -126,6 +149,7 @@ function handleAuthRegisterPOST(req, res){
     channelData.channelStatus = ChannelStatus.OFFLINE;
     channelData.streamKey = DatabaseAccess.util.generateStreamKey();
     channelData.userId = userData.userId;
+    channelData.username = userData.username;
     channelData.title = "Stream Title";
     channelData.description = "Stream Description";
     channelData.directory = "universal";
@@ -179,5 +203,6 @@ module.exports = {
     handleAuthRegisterGET,
     handleAuthLogoutGET,
     handleAuthLoginPOST,
-    handleAuthRegisterPOST
+    handleAuthRegisterPOST,
+    handleAlgoUserByIdGET
 }
