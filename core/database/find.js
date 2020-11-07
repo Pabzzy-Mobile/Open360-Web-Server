@@ -242,10 +242,10 @@ function channelByUsername (username){
     return new Promise((resolve, reject) => {
         // Get the user
         userByUsername(username)
-            .then(result => {
-                channelByUserId(result.userId)
-                    .then(result => {
-                        resolve(result);
+            .then(user => {
+                channelByUserId(user.userId)
+                    .then(channel => {
+                        resolve(channel);
                     })
                     .catch(err => reject(err));
             })
@@ -256,13 +256,13 @@ function channelByUsername (username){
 /**
  * Retrieves the channel from the userId given
  * @param {string} userId
- * @return {Promise<UserData>}
+ * @return {Promise<ChannelData>}
  */
 function channelByUserId (userId){
     return new Promise((resolve, reject) => {
         // Set the query
         let query = { userId: userId };
-        retrieveDocOne("channel_info", query)
+        retrieveDocOne("channel_data", query)
             .then(result => {
                 // Check if the user was found
                 if (result == null) {

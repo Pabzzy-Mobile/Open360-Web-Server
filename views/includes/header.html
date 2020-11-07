@@ -1,5 +1,6 @@
-<p>
-    <a href="/">Home</a>
+<div class="header">
+    <a class="header-home" href="/">Home</a>
+    <div class="header-profile">
     {% if user %}
     Hello {{user.displayName}} ({{user.username}}),
     <a href="/auth/logout">logout</a>
@@ -7,4 +8,5 @@
     Please login
     <a href="/auth/login">here</a>
     {% endif %}
-</p>
+    </div>
+</div>

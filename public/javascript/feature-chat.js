@@ -6,10 +6,10 @@ let sendMessage = function () {
     document.querySelector(".message-box input").value = "";
 };
 
-let createMessage = function (text, user) {
+let createMessage = function (text, user, colour) {
     emojify(text)
         .then((emojifiedMessage) => {
-            createMessageElement(emojifiedMessage, user);
+            createMessageElement(emojifiedMessage, user, colour);
         });
 }
 
@@ -22,12 +22,13 @@ let createLogElement = function (text) {
     document.querySelector(".chat .messages").append(messageDiv);
 }
 
-let createMessageElement = function (text, user) {
+let createMessageElement = function (text, user, colour) {
     let messageDiv = document.createElement("p");
     messageDiv.classList.add("chat-message");
     let from = document.createElement("span");
     from.innerText = user;
     from.classList.add("chat-message-user");
+    from.style.color = colour;
     messageDiv.append(from);
     let message = document.createElement("span");
     message.innerHTML = text;

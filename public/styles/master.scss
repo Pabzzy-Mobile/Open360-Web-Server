@@ -1,6 +1,96 @@
+@import "fonts";
+
 * {
   padding: 0;
   margin: 0;
+  background: #2C2F33;
+  color: white;
+  font-family: "JetBrains Mono", sans-serif;
+}
+
+.header{
+  height: 40px;
+  background: #23272A;
+
+  .header-home{
+    font-size: 32px;
+  }
+
+  .header-profile{
+    float: right;
+  }
+}
+
+.channel-content{
+  display: flex;
+  flex-direction: row;
+  min-height: 80vh;
+}
+
+.media{
+  width: 1024px;
+  background: black;
+  flex: 1 1 0;
+}
+
+.chat{
+  flex: 0 1 400px;
+  background: #23272A;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.messages{
+  flex: 1 1 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.log-message{
+  color: lightgrey;
+  font-size: 12px;
+  text-align: center;
+}
+
+.chat-message{
+  margin: 6px 6px 2px 6px;
+  .chat-message-user{
+    margin-right: 2px;
+    &::after{
+      content: ":";
+    }
+  }
+}
+
+.message-box{
+  flex: 0 1 40px;
+  display: flex;
+  flex-direction: row;
+
+  *{
+    margin: 2px;
+  }
+
+  input {
+    flex: 1 1 80px;
+    border-radius: 6px;
+    border: 1px solid whitesmoke;
+    padding: 5px;
+    background: black;
+    color: whitesmoke;
+  }
+
+  a {
+    flex: 1 1 0;
+    border-radius: 6px;
+    padding: 6px;
+    background: wheat;
+    color: #23272A;
+    text-decoration: none;
+    text-align: center;
+  }
 }
 
 .pop-card {
@@ -16,7 +106,7 @@
 
 .pop-card{
   .pop-card-username{
-    color: #343434;
+    color: #23272A;
     font-size: 8px;
   }
   .pop-card-displayName{
