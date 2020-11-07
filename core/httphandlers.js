@@ -1,4 +1,4 @@
-const {UserData, UserDataTypes, ChannelData, ChannelStatus, NotAllowedUsernames, saltPassword} = require("./util.js");
+const {UserData, UserDataTypes, ChannelData, ChannelStatus, NotAllowedUsernames, saltPassword, IsEmail} = require("./util.js");
 const DatabaseAccess = require("./database/");
 
 // Define this object's info
@@ -159,6 +159,12 @@ function handleAuthRegisterPOST(req, res){
     if (NotAllowedUsernames.includes(userData.username)){
         res.render('register',{
             error: "This username is not allowed"
+        });
+        return;
+    }
+    if (!IsEmail(userData.email)) {
+        res.render('register',{
+            error: "Insert a valid email"
         });
         return;
     }

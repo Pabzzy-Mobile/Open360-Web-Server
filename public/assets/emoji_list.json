@@ -1,0 +1,21 @@
+{
+  "version": 0.1,
+  "emojis": [
+    {
+      "name": "KEKW",
+      "path": "emojis/KEKW.png"
+    },
+    {
+      "name": "PogChamp",
+      "path": "emojis/PogChamp.png"
+    },
+    {
+      "name": "NotLikeThis",
+      "path": "emojis/NotLikeThis.png"
+    },
+    {
+      "name": "ResidentSleeper",
+      "path": "emojis/ResidentSleeper.png"
+    }
+  ]
+}

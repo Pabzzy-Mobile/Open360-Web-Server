@@ -174,6 +174,10 @@ const NotAllowedUsernames = [
     "public"
 ]
 
+function IsEmail(str){
+    return String(str).match(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/) != null;
+}
+
 module.exports = {
     UserData,
     UserDataTypes,
@@ -182,5 +186,6 @@ module.exports = {
     ChannelStatus,
     saltPassword,
     generateString,
-    NotAllowedUsernames
+    NotAllowedUsernames,
+    IsEmail
 };

@@ -41,7 +41,7 @@
     });
 
     socket.on("chat-message", (data) => {
-        createMessageElement(data.message, data.user);
+        createMessage(data.message, data.user);
     });
     //{% if user %}
     document.querySelector(".message-box a").addEventListener("mouseup", e => {
