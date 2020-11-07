@@ -9,8 +9,18 @@
 
 <body>
     {% include "includes/header.html" %}
-    <h1>Home</h1>
-    <div class="channels-featured"></div>
+    <div class="home-content">
+        <div class="following-list">
+
+        </div>
+        <div class="featured">
+            <div class="channels-featured"></div>
+            <div class="channels-user-recommended"></div>
+            <div class="channels-directory-recommended"></div>
+            <div class="channels-tags-recommended"></div>
+            {% include "includes/footer.html" %}
+        </div>
+    </div>
     <script src="/public/javascript/feature-users.js"></script>
     <script src="/public/javascript/feature-home-channels.js"></script>
     <script type="text/javascript">

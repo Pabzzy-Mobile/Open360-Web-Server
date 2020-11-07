@@ -8,9 +8,15 @@
   font-family: "JetBrains Mono", sans-serif;
 }
 
+// HEADER
+
 .header{
   height: 40px;
   background: #23272A;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 
   .header-home{
     font-size: 32px;
@@ -20,6 +26,80 @@
     float: right;
   }
 }
+
+// HOME PAGE
+
+.home-content{
+  display: flex;
+  align-items: stretch;
+  flex-direction: row;
+  height: (100vh);
+  .following-list{
+    width: 250px;
+    position: fixed;
+    top: 40px;
+    left: 0;
+    bottom: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+  .featured{
+    margin-left: 250px;
+    margin-top: 40px;
+    flex: 1 1 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+}
+
+.channel-container {
+  padding: 6px;
+  display: inline-block;
+  border: 1px solid whitesmoke;
+  border-radius: 6px;
+  margin: 20px;
+
+  .channel-window{
+    width: 256px;
+    height: 144px;
+    display: block;
+    background: #23272A;
+  }
+
+  .channel-title{
+    font-size: 32px;
+  }
+
+  .channel-tag-list{
+    .channel-tag{
+      padding: 6px;
+      border-radius: 6px;
+      background: #2C2F33;
+    }
+  }
+
+  .channel-user{
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+
+    .channel-user-pic{
+      width: 32px;
+      height: 32px;
+      margin: 8px 2px;
+      border-radius: 50%;
+      display: inline-block;
+      background: whitesmoke;
+    }
+    .channel-user-name{
+      font-size: 18px;
+      margin: 2px 2px;
+      display: inline-block;
+    }
+  }
+}
+
+// CHANNEL PAGES
 
 .channel-content{
   display: flex;
@@ -46,6 +126,10 @@
   flex: 1 1 0;
   overflow-y: scroll;
   overflow-x: hidden;
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  line-break: anywhere;
 }
 
 .log-message{
@@ -56,10 +140,27 @@
 
 .chat-message{
   margin: 6px 6px 2px 6px;
+
   .chat-message-user{
     margin-right: 2px;
+    padding: 4px;
+    border-radius: 4px;
+    text-decoration: none;
+
     &::after{
       content: ":";
+    }
+
+    &:hover{
+      background: #23272A;
+    }
+  }
+
+  .chat-message-text{
+    padding: 2px;
+    img{
+      height: 32px;
+      display: inline;
     }
   }
 }
@@ -93,20 +194,16 @@
   }
 }
 
+// POP CARDS
+
 .pop-card {
   padding: 2px;
   background: lightgrey;
 }
 
-.channel-container {
-  padding: 6px;
-  display: inline-block;
-  border: 1px solid black;
-}
-
 .pop-card{
   .pop-card-username{
-    color: #23272A;
+    color: whitesmoke;
     font-size: 8px;
   }
   .pop-card-displayName{

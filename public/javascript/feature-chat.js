@@ -25,10 +25,11 @@ let createLogElement = function (text) {
 let createMessageElement = function (text, user, colour) {
     let messageDiv = document.createElement("p");
     messageDiv.classList.add("chat-message");
-    let from = document.createElement("span");
+    let from = document.createElement("a");
     from.innerText = user;
     from.classList.add("chat-message-user");
     from.style.color = colour;
+    from.setAttribute("href", "/" + user);
     messageDiv.append(from);
     let message = document.createElement("span");
     message.innerHTML = text;

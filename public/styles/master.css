@@ -65,12 +65,79 @@
 .header {
   height: 40px;
   background: #23272A;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 .header .header-home {
   font-size: 32px;
 }
 .header .header-profile {
   float: right;
+}
+
+.home-content {
+  display: flex;
+  align-items: stretch;
+  flex-direction: row;
+  height: 100vh;
+}
+.home-content .following-list {
+  width: 250px;
+  position: fixed;
+  top: 40px;
+  left: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.home-content .featured {
+  margin-left: 250px;
+  margin-top: 40px;
+  flex: 1 1 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.channel-container {
+  padding: 6px;
+  display: inline-block;
+  border: 1px solid whitesmoke;
+  border-radius: 6px;
+  margin: 20px;
+}
+.channel-container .channel-window {
+  width: 256px;
+  height: 144px;
+  display: block;
+  background: #23272A;
+}
+.channel-container .channel-title {
+  font-size: 32px;
+}
+.channel-container .channel-tag-list .channel-tag {
+  padding: 6px;
+  border-radius: 6px;
+  background: #2C2F33;
+}
+.channel-container .channel-user {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+.channel-container .channel-user .channel-user-pic {
+  width: 32px;
+  height: 32px;
+  margin: 8px 2px;
+  border-radius: 50%;
+  display: inline-block;
+  background: whitesmoke;
+}
+.channel-container .channel-user .channel-user-name {
+  font-size: 18px;
+  margin: 2px 2px;
+  display: inline-block;
 }
 
 .channel-content {
@@ -98,6 +165,10 @@
   flex: 1 1 0;
   overflow-y: scroll;
   overflow-x: hidden;
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  line-break: anywhere;
 }
 
 .log-message {
@@ -111,9 +182,22 @@
 }
 .chat-message .chat-message-user {
   margin-right: 2px;
+  padding: 4px;
+  border-radius: 4px;
+  text-decoration: none;
 }
 .chat-message .chat-message-user::after {
   content: ":";
+}
+.chat-message .chat-message-user:hover {
+  background: #23272A;
+}
+.chat-message .chat-message-text {
+  padding: 2px;
+}
+.chat-message .chat-message-text img {
+  height: 32px;
+  display: inline;
 }
 
 .message-box {
@@ -147,14 +231,8 @@
   background: lightgrey;
 }
 
-.channel-container {
-  padding: 6px;
-  display: inline-block;
-  border: 1px solid black;
-}
-
 .pop-card .pop-card-username {
-  color: #23272A;
+  color: whitesmoke;
   font-size: 8px;
 }
 .pop-card .pop-card-displayName {

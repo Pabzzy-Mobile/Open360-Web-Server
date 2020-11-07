@@ -40,8 +40,10 @@ let createUserCardElement = function (userData) {
     userElement.classList.add("channel-user");
     let userPic = document.createElement("div");
     userPic.style.backgroundImage = "url(\"/public/pp/" + userData.userId + "_pp.png\")";
+    userPic.classList.add("channel-user-pic");
     userElement.append(userPic);
     let usernameP = document.createElement("p");
+    usernameP.classList.add("channel-user-name");
     usernameP.innerText = userData.username;
     userElement.append(usernameP);
     let data = document.createElement("data");
@@ -51,7 +53,7 @@ let createUserCardElement = function (userData) {
 
     userElement.addEventListener("mouseenter", function (e){
         console.log(e);
-        onUserCardHover(e)
+        onUserCard(e)
             .then(r => {});
     });
 
@@ -99,7 +101,7 @@ let createPopCardElement = function (userData) {
  * @param {HTMLDivElement} e.target
  * @return {Promise}
  */
-let onUserCardHover = function (e) {
+let onUserCard = function (e) {
     return new Promise((resolve, reject) => {
         let userId = e.target.dataset.userId;
         requestUserById(userId)
