@@ -34,17 +34,11 @@
   align-items: stretch;
   flex-direction: row;
   height: (100vh);
-  .following-list{
-    width: 250px;
-    position: fixed;
-    top: 40px;
-    left: 0;
-    bottom: 0;
-    overflow-y: scroll;
-    overflow-x: hidden;
+  margin-left: 250px;
+  &.side-bar-collapsed{
+    margin-left: 50px;
   }
   .featured{
-    margin-left: 250px;
     margin-top: 40px;
     flex: 1 1 0;
     overflow-y: scroll;
@@ -103,14 +97,23 @@
 
 .channel-content{
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-left: 250px;
+  &.side-bar-collapsed{
+    margin-left: 50px;
+  }
+}
+
+.media-and-chat{
+  display: flex;
   flex-direction: row;
   min-height: 80vh;
 }
 
 .media{
-  width: 1024px;
   background: black;
-  flex: 1 1 0;
+  flex: 1 1 720px;
 }
 
 .chat{
@@ -169,12 +172,28 @@
   flex: 0 1 40px;
   display: flex;
   flex-direction: row;
+  position: relative;
 
   *{
     margin: 2px;
   }
 
-  input {
+  .message-box-autoscroll {
+    width: 40%;
+    position: absolute;
+    top: -40px;
+    margin: 10px 28%;
+    padding: 1%;
+    border-radius: 8px;
+    background: #23272A60;
+    border: whitesmoke 1px solid;
+    font-size: 12px;
+    text-align: center;
+    text-decoration: none;
+    visibility: hidden;
+  }
+
+  .message-box-text-input {
     flex: 1 1 80px;
     border-radius: 6px;
     border: 1px solid whitesmoke;
@@ -183,7 +202,7 @@
     color: whitesmoke;
   }
 
-  a {
+  .message-box-send {
     flex: 1 1 0;
     border-radius: 6px;
     padding: 6px;
@@ -191,6 +210,21 @@
     color: #23272A;
     text-decoration: none;
     text-align: center;
+  }
+}
+
+// SIDEBAR
+
+.sidebar{
+  width: 250px;
+  position: fixed;
+  top: 40px;
+  left: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  &.side-bar-collapsed{
+    width: 50px;
   }
 }
 

@@ -1,3 +1,6 @@
+let shouldScroll = true;
+let lastScrollWasAutoScroll = false;
+
 let sendMessage = function () {
     let message = document.querySelector(".message-box input").value;
     if (message === "") return;
@@ -10,6 +13,9 @@ let createMessage = function (text, user, colour) {
     emojify(text)
         .then((emojifiedMessage) => {
             createMessageElement(emojifiedMessage, user, colour);
+            if (shouldScroll){
+                scrollToBottom();
+            }
         });
 }
 
@@ -36,6 +42,13 @@ let createMessageElement = function (text, user, colour) {
     message.classList.add("chat-message-text");
     messageDiv.append(message);
     document.querySelector(".chat .messages").append(messageDiv);
+}
+
+let scrollToBottom = function () {
+    lastScrollWasAutoScroll = true;
+    let messagesDiv = document.querySelector(".chat .messages");
+    // Scroll to the bottom
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 /**
@@ -122,4 +135,33 @@ let emojify = function (str){
                 console.error(err);
             })
     });
+}
+
+document.querySelector('.chat .messages')
+    .addEventListener("scroll", function () {
+        if (lastScrollWasAutoScroll === false) {
+            setAutoScroll(false);
+        }
+        lastScrollWasAutoScroll = false;
+    });
+
+document.querySelector('.message-box-autoscroll')
+    .addEventListener('mouseup', function (e) {
+        setAutoScroll(true);
+    });
+
+let setAutoScroll = function (active) {
+    switch (active) {
+        case true:
+            shouldScroll = true;
+            document.querySelector('.message-box-autoscroll')
+                .style.visibility = 'hidden';
+            scrollToBottom();
+            break;
+        case false:
+            shouldScroll = false;
+            document.querySelector('.message-box-autoscroll')
+                .style.visibility = 'visible';
+            break;
+    }
 }

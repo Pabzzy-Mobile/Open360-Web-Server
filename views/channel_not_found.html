@@ -7,7 +7,10 @@
 </head>
 <body>
 {% include "includes/header.html" %}
-The channel was not found <a href="/">return to the home page</a>
+<div class="channel-content">
+    {% include "includes/sidebar.html" %}
+    <p>The channel was not found <a href="/">return to the home page</a></p>
+</div>
 {% if message %}
 <pre>{{message}}</pre>
 {% endif %}
