@@ -7,12 +7,12 @@
 </head>
 <body>
 {% include "includes/header.html" %}
-<div class="channel-content">
+<div class="channel-content depends-on-sidebar">
     {% include "includes/sidebar.html" %}
     <p>The channel was not found <a href="/">return to the home page</a></p>
+    {% if message %}
+    <pre>{{message}}</pre>
+    {% endif %}
 </div>
-{% if message %}
-<pre>{{message}}</pre>
-{% endif %}
 </body>
 </html>

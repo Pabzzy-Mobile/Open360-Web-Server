@@ -139,6 +139,7 @@
   flex-direction: column;
   align-items: stretch;
   margin-left: 250px;
+  margin-top: 40px;
 }
 .channel-content.side-bar-collapsed {
   margin-left: 50px;
