@@ -124,6 +124,13 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+
+  .chat-details{
+    flex: 0 1 40px;
+    h1 {
+      text-align: center;
+    }
+  }
 }
 
 .messages{
