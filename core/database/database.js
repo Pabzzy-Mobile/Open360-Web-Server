@@ -183,7 +183,7 @@ function updateDocOne (collectionName, document, filter){
         getCollection(collectionName)
             .then( collection => {
                 // Replace the document according to the filter
-                collection.replaceOne(filter, document)
+                collection.updateOne(filter, document)
                     .then(result => {
                         resolve(result.ok === 1);
                     })
@@ -211,7 +211,7 @@ function updateDocMany (collectionName, documents, filters){
             // Retrieve the collection
             getCollection(collectionName)
                 .then(collection => {
-                    replaceEach(collection, documents, filters)
+                    updateEach(collection, documents, filters)
                         .then((result) => {
                         resolve(result);
                     }).catch(err => {
@@ -233,13 +233,13 @@ function updateDocMany (collectionName, documents, filters){
  * @param {Object[]} filters - this array should be the same size as documents
  * @return {Promise<boolean>}
  */
-function replaceEach (collection, documents, filters){
+function updateEach (collection, documents, filters){
     return new Promise((resolve, reject) => {
         let length = Math.max(documents.length, filters.length);
         // Iterate through each document to be replaced
         for (let i = 1; i <= length; i++){
             // Replace the document according to the filter
-            collection.replaceOne(filters[i - 1], documents[i - 1])
+            collection.updateOne(filters[i - 1], documents[i - 1])
                 .then((result) => {
                     if (i === length){
                         resolve(result.ok === 1);

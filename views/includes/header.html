@@ -2,7 +2,7 @@
     <a class="header-home" href="/">Home</a>
     <div class="header-profile">
     {% if user %}
-    Hello {{user.displayName}} ({{user.username}}),
+        Hello {{user.displayName}} (<a href="/user/dashboard/">{{user.username}}</a>),
     <a href="/auth/logout">logout</a>
     {% else %}
     Please login

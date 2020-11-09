@@ -236,7 +236,7 @@ function userAuthGetActive (userId){
  * Retrieves the channel from the username given
  * This method is twice slower than find channel by userId
  * @param {string} username
- * @return {Promise<UserData>}
+ * @return {Promise<ChannelData>}
  */
 function channelByUsername (username){
     return new Promise((resolve, reject) => {

@@ -3,8 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="/public/styles/master.css">
 </head>
 <body>
-
+{% include "includes/header.html" %}
+<div class="dashboard-content content depends-on-sidebar">
+    {% include "includes/sidebar.html" %}
+    <div class="dashboard-stream-details">
+        <p>Stream Title:</p>
+        <input class="input-stream-title" type="text" value="{{channel.title}}"/>
+        <p>Stream Description:</p>
+        <input class="input-stream-description" type="text" value="{{channel.description}}"/>
+        <p>Stream Tags (separate tags with a ";" (semi-colon)):</p>
+        <input class="input-stream-tags" type="text" value="{{channel.tags[0]}}"/>
+        <p>Stream Category:</p>
+        <input class="input-stream-directory" type="text" value="{{channel.directory}}"/>
+        <a class="settings-save dashboard-stream-details-save" href="#" onclick="return false;">Save</a>
+    </div>
+    <div class="dashboard-user-details">
+        <p>User DisplayName:</p>
+        <input class="input-user-displayName" type="text" value="{{user.displayName}}"/>
+        <a class="settings-save dashboard-user-details-save" href="#" onclick="return false;">Save</a>
+    </div>
+    <script src="/public/javascript/feature-dashboard.js"></script>
+</div>
 </body>
 </html>

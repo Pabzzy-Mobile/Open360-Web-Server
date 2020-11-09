@@ -1,5 +1,5 @@
 // Require the util module
-const {UserData, UserDataTypes, ChannelData, ChannelModule, ChannelStatus} = require("../util.js");
+const {UserData, UserDataTypes, ChannelData, ChannelModule, ChannelStatus, Settings} = require("../util.js");
 // Require other database files
 // const util = require("./util.js");
 const {insertDocOne, updateDocOne, deleteDocOne} = require("./database.js");
@@ -138,6 +138,24 @@ function removeUserAuth (userId, force) {
     });
 }
 
+/**
+ *
+ * @param userId
+ * @param {Settings} newSettings
+ * @return {Promise<boolean>}
+ */
+function saveUserSettings (userId, newSettings){
+    return new Promise((resolve, reject) => {
+        // Set the filter to find the channel by userId
+        let filter = {userId: userId};
+        // Set what fields the database should modify
+        let doc = {$set: {displayName: newSettings.user.displayName}};
+        updateDocOne("user_info", doc, filter)
+            .then(success => resolve(success))
+            .catch(err => reject(err));
+    });
+}
+
 // ------------------------- Channel Related -------------------------
 
 /**
@@ -229,6 +247,26 @@ function removeModule (userId, module, callback){
     });
 }
 
+/**
+ *
+ * @param userId
+ * @param {Settings} newSettings
+ * @return {Promise<boolean>}
+ */
+function saveChannelSettings (userId, newSettings){
+    return new Promise((resolve, reject) => {
+        // Set the filter to find the channel by userId
+        let filter = {userId: userId};
+        // Parse tags
+        let tags = newSettings.channel.tags.split(";");
+        // Set what fields the database should modify
+        let doc = {$set: {title: newSettings.channel.title, description: newSettings.channel.description, tags: tags, directory: newSettings.channel.directory}};
+        updateDocOne("channel_data", doc, filter)
+            .then(success => resolve(success))
+            .catch(err => reject(err));
+    });
+}
+
 module.exports = {
     addUserAllInfo,
     addUserDetails,
@@ -238,5 +276,7 @@ module.exports = {
     removeModule,
     removeUserAuth,
     setActiveUserAuth,
-    setChannelStatus
+    setChannelStatus,
+    saveChannelSettings,
+    saveUserSettings
 }

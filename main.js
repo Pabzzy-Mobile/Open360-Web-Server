@@ -98,6 +98,8 @@ app.use(sessionMiddleware)
 app.use(require('body-parser').urlencoded({
    extended: false
 }));
+// Set up the parser for requests that are json type
+app.use(require('body-parser').json('application/json'));
 
 // Initialize Passport and restore authentication state, if any, from the
 // session.
@@ -150,11 +152,11 @@ app.get('/auth/logout', function (req, res) {
 
 app.get('/user/dashboard', Util.IsLoggedIn, function (req, res) {
     HTTPResponses.dashboard.handleDashboardGET(req, res);
-})
+});
 
 app.post('/user/dashboard', Util.IsLoggedIn, function (req, res) {
     HTTPResponses.dashboard.handleDashboardPOST(req, res);
-})
+});
 
 // ALGORITHM REQUESTS
 

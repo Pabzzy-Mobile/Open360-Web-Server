@@ -27,17 +27,21 @@
   }
 }
 
+.content {
+  margin-left: 250px;
+  margin-top: 40px;
+  &.side-bar-collapsed{
+    margin-left: 50px;
+  }
+}
+
 // HOME PAGE
 
 .home-content{
   display: flex;
   align-items: stretch;
   flex-direction: row;
-  height: (100vh);
-  margin-left: 250px;
-  &.side-bar-collapsed{
-    margin-left: 50px;
-  }
+
   .featured{
     margin-top: 40px;
     flex: 1 1 0;
@@ -65,10 +69,15 @@
   }
 
   .channel-tag-list{
+    display: block;
+    height: 50px;
+
     .channel-tag{
       padding: 6px;
       border-radius: 6px;
-      background: #2C2F33;
+      margin: 0 2px;
+      background: #23272A;
+      display: inline-block;
     }
   }
 
@@ -99,11 +108,6 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  margin-left: 250px;
-  margin-top: 40px;
-  &.side-bar-collapsed{
-    margin-left: 50px;
-  }
 }
 
 .media-and-chat{
@@ -219,6 +223,50 @@
     text-decoration: none;
     text-align: center;
   }
+}
+
+// DASHBOARD AND SETTINGS PAGE
+
+.dashboard-content{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  input{
+    font-size: 32px;
+    padding: 6px;
+    border-radius: 8px;
+    background: #23272A;
+    border: whitesmoke solid 1px;
+  }
+
+  .input-stream-title{
+
+  }
+
+  .input-stream-description{
+
+  }
+
+  .input-stream-tags{
+
+  }
+
+  .input-stream-directory{
+
+  }
+
+  .input-user-displayName{
+
+  }
+}
+
+.settings-save {
+  padding: 6px;
+  border-radius: 8px;
+  background: wheat;
+  border: #23272A solid 1px;
+  font-size: 32px;
 }
 
 // SIDEBAR

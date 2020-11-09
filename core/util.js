@@ -130,6 +130,52 @@ const ChannelStatus = {
 }
 
 /**
+ * @type {Object} Settings
+ * @property {SettingsType} type
+ * @property {Object} channel
+ * @property {string} user.title
+ * @property {string} user.description
+ * @property {string} user.tags
+ * @property {string} user.displayName
+ * @property {Object} user
+ * @property {string} user.directory
+ */
+class Settings {
+    constructor() {
+        this.type = SettingsType.UNDEFINED;
+        this.channel = {
+            title: "",
+            description: "",
+            tags: "",
+            directory: ""
+        }
+        this.user = {
+            displayName: ""
+        }
+    }
+
+    /**
+     * Unboxes object to a Settings instance
+     * @param {Object} obj
+     * @return {Settings}
+     */
+    cast(obj) {
+        obj && Object.assign(this, obj);
+        return this;
+    }
+}
+
+/**
+ * @const SettingsType
+ * @type {{UNDEFINED: number, USER_DATA: number, CHANNEL_DATA: number}}
+ */
+const SettingsType = {
+    UNDEFINED: 0,
+    USER_DATA: 1,
+    CHANNEL_DATA: 2
+}
+
+/**
  * Salts a password, if no salt is passed it'll generate a new one
  * @param password {string}
  * @param [salt] {string}
@@ -179,7 +225,7 @@ function IsEmail(str){
 }
 
 function IsLoggedIn(req, res, next) {
-    if (req.user) {
+    if (req.isAuthenticated()) {
         next();
     } else {
         res.redirect('/auth/login');
@@ -193,6 +239,8 @@ module.exports = {
     ChannelData,
     ChannelModule,
     ChannelStatus,
+    Settings,
+    SettingsType,
     saltPassword,
     generateString,
     NotAllowedUsernames,

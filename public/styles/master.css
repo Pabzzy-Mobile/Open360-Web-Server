@@ -77,15 +77,18 @@
   float: right;
 }
 
+.content {
+  margin-left: 250px;
+  margin-top: 40px;
+}
+.content.side-bar-collapsed {
+  margin-left: 50px;
+}
+
 .home-content {
   display: flex;
   align-items: stretch;
   flex-direction: row;
-  height: 100vh;
-  margin-left: 250px;
-}
-.home-content.side-bar-collapsed {
-  margin-left: 50px;
 }
 .home-content .featured {
   margin-top: 40px;
@@ -110,10 +113,16 @@
 .channel-container .channel-title {
   font-size: 32px;
 }
+.channel-container .channel-tag-list {
+  display: block;
+  height: 50px;
+}
 .channel-container .channel-tag-list .channel-tag {
   padding: 6px;
   border-radius: 6px;
-  background: #2C2F33;
+  margin: 0 2px;
+  background: #23272A;
+  display: inline-block;
 }
 .channel-container .channel-user {
   text-decoration: none;
@@ -138,11 +147,6 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  margin-left: 250px;
-  margin-top: 40px;
-}
-.channel-content.side-bar-collapsed {
-  margin-left: 50px;
 }
 
 .media-and-chat {
@@ -249,6 +253,26 @@
   color: #23272A;
   text-decoration: none;
   text-align: center;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.dashboard-content input {
+  font-size: 32px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #23272A;
+  border: whitesmoke solid 1px;
+}
+.settings-save {
+  padding: 6px;
+  border-radius: 8px;
+  background: wheat;
+  border: #23272A solid 1px;
+  font-size: 32px;
 }
 
 .sidebar {
