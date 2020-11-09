@@ -113,18 +113,18 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Home page request
 app.get('/', function (req, res){
-   HTTPResponses.handleHomepageGET(req, res);
+   HTTPResponses.home.handleHomepageGET(req, res);
 });
 
 // Profile page requests
 app.get('/:id', function (req, res){
-   HTTPResponses.handleChannelByUsernameGET(req, res);
+   HTTPResponses.channel.handleChannelByUsernameGET(req, res);
 });
 
 // LOGIN PAGES
 
 app.get('/auth/login', function (req, res) {
-   HTTPResponses.handleAuthLoginGET(req, res);
+   HTTPResponses.auth.handleAuthLoginGET(req, res);
 });
 
 app.post('/auth/login',
@@ -135,25 +135,35 @@ app.post('/auth/login',
 );
 
 app.get('/auth/register', function (req, res) {
-   HTTPResponses.handleAuthRegisterGET(req, res);
+   HTTPResponses.auth.handleAuthRegisterGET(req, res);
 });
 
 app.post('/auth/register', function (req, res) {
-   HTTPResponses.handleAuthRegisterPOST(req, res);
+   HTTPResponses.auth.handleAuthRegisterPOST(req, res);
 });
 
 app.get('/auth/logout', function (req, res) {
-   HTTPResponses.handleAuthLogoutGET(req, res);
+   HTTPResponses.auth.handleAuthLogoutGET(req, res);
 });
+
+// DASHBOARD AND SETTINGS REQUESTS
+
+app.get('/user/dashboard', Util.IsLoggedIn, function (req, res) {
+    HTTPResponses.dashboard.handleDashboardGET(req, res);
+})
+
+app.post('/user/dashboard', Util.IsLoggedIn, function (req, res) {
+    HTTPResponses.dashboard.handleDashboardPOST(req, res);
+})
 
 // ALGORITHM REQUESTS
 
 app.get('/algo/channels/featured', function (req, res){
-   HTTPResponses.handleAlgoChannelsFeaturedGET(req, res);
+   HTTPResponses.algo.handleAlgoChannelsFeaturedGET(req, res);
 });
 
 app.get('/algo/users/id/:id', function (req, res){
-    HTTPResponses.handleAlgoUserByIdGET(req, res);
+    HTTPResponses.algo.handleAlgoUserByIdGET(req, res);
 });
 
 // DEBUG REQUESTS

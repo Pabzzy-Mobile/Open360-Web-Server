@@ -178,6 +178,15 @@ function IsEmail(str){
     return String(str).match(/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/) != null;
 }
 
+function IsLoggedIn(req, res, next) {
+    if (req.user) {
+        next();
+    } else {
+        res.redirect('/auth/login');
+    }
+}
+
+
 module.exports = {
     UserData,
     UserDataTypes,
@@ -187,5 +196,6 @@ module.exports = {
     saltPassword,
     generateString,
     NotAllowedUsernames,
-    IsEmail
+    IsEmail,
+    IsLoggedIn
 };

@@ -3,7 +3,7 @@ let Util = require("./util.js");
 console.log("Loading Database Module");
 let DatabaseAccess = require("./database/");
 console.log("Loading HTTP Responses Module");
-let HTTPResponses = require("./httphandlers.js");
+let HTTPResponses = require("./httphandlers/");
 console.log("Loading Tests Module");
 let Tests = require("./tests.js");
 
