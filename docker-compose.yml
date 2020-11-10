@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services:
   web:
@@ -23,6 +23,7 @@ services:
       session-network:
       mongodb-network:
       chat-network:
+      ingest-network:
 
   session-redis:
     image: redis
@@ -53,3 +54,6 @@ networks:
   session-network:
   mongodb-network:
   chat-network:
+    name: "chat-network"
+  ingest-network:
+    name: "ingest-network"
