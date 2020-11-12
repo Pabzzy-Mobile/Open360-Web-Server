@@ -202,6 +202,42 @@ function setChannelStatus (userId, newStatus){
 }
 
 /**
+ *
+ * @param {string} streamKey
+ * @param {ChannelStatus} newStatus
+ * @return {Promise<boolean>}
+ */
+function setChannelStatusByKey(streamKey, newStatus){
+    return new Promise((resolve, reject) => {
+        // Set the filter to find the channel by userId
+        let filter = {streamKey: streamKey};
+        // Set what fields the database should modify
+        let doc = {$set: {channelStatus: newStatus}};
+        updateDocOne("channel_data", doc, filter)
+            .then(success => resolve(success))
+            .catch(err => reject(err));
+    });
+}
+
+/**
+ * Sets the stream key of a channel
+ * @param {string} userId
+ * @param {string} newStreamKey
+ * @return {Promise<boolean>}
+ */
+function setChannelStreamKey(userId, newStreamKey){
+    return new Promise((resolve, reject) => {
+        // Set the filter to find the channel by userId
+        let filter = {userId: userId};
+        // Set what fields the database should modify
+        let doc = {$set: {streamKey: newStreamKey}};
+        updateDocOne("channel_data", doc, filter)
+            .then(success => resolve(success))
+            .catch(err => reject(err));
+    });
+}
+
+/**
  * Sets the status of a channel on the database
  * @param {string} userId
  * @param {ChannelModule} module
@@ -278,5 +314,7 @@ module.exports = {
     setActiveUserAuth,
     setChannelStatus,
     saveChannelSettings,
-    saveUserSettings
+    saveUserSettings,
+    setChannelStreamKey,
+    setChannelStatusByKey
 }
