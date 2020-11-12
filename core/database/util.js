@@ -12,21 +12,43 @@ const {userAuthExists, channelStreamKeyExists} = require("./find.js");
  * @return {string}
  */
 function generateUserId () {
-    let userId = generateString(32);
-    userAuthExists(userId)
-        .then(exists => {
-            if (exists) userId = generateUserId();
-        });
-    return userId;
+    return new Promise((resolve, reject) => {
+        let userId = generateString(32);
+        userAuthExists(userId)
+            .then(exists => {
+                if (exists) {
+                    generateUserId()
+                        .then(newUserId => {
+                            userId = newUserId;
+                        });
+                } else {
+                    resolve (userId);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+    });
 }
 
 function generateStreamKey(){
-    let streamKey = generateString(32);
-    channelStreamKeyExists(streamKey)
-        .then(exists => {
-            if (exists) streamKey = generateUserId();
-        });
-    return streamKey;
+    return new Promise((resolve, reject) => {
+        let streamKey = generateString(32);
+        channelStreamKeyExists(streamKey)
+            .then(exists => {
+                if (exists) {
+                    generateStreamKey()
+                        .then(newStreamKey => {
+                            streamKey = newStreamKey;
+                        });
+                } else {
+                    resolve(streamKey);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+    });
 }
 
 module.exports = {
