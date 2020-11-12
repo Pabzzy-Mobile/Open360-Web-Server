@@ -18,11 +18,15 @@ const httpauth = require('./httpauth.js');
 // DASHBOARD RESPONSES
 const httpdashboard = require('./httpdashboard.js');
 
+// VIDEO RESPONSES
+const httpvideo = require('./httpvideo.js');
+
 module.exports = {
     moduleInfo,
     home:       httphome,
     channel:    httpchannel,
     algo:       httpalgo,
     auth:       httpauth,
-    dashboard : httpdashboard
+    dashboard:  httpdashboard,
+    video:      httpvideo,
 }

@@ -12,7 +12,7 @@ let sendNewSettings = function (newSettings) {
             if (request.status === 200) {
                 let json = JSON.parse(request.responseText);
                 console.log(json);
-                resolve(json)
+                resolve(json);
             } else {
                 reject(request.responseText);
             }
@@ -25,6 +25,30 @@ let sendNewSettings = function (newSettings) {
 
         let data = JSON.stringify(newSettings);
         request.send(data);
+    });
+}
+
+let sendNewStreamKeyRequest = function (){
+    return new Promise((resolve, reject) => {
+        let request = new XMLHttpRequest();
+        request.open('POST', '/auth/nsk', true);
+
+        request.onreadystatechange = function(){
+            if (request.status === 200) {
+                let json = JSON.parse(request.responseText);
+                console.log(json);
+                resolve(json);
+            } else {
+                reject(request.responseText);
+            }
+        }
+
+        request.onerror = function(err) {
+            console.log("Could not connect to the web server")
+            reject(err);
+        };
+
+        request.send();
     });
 }
 
@@ -80,6 +104,16 @@ function sendStreamSettings(){
         })
 }
 
+function requestNewStreamKey(){
+    sendNewStreamKeyRequest()
+        .then((resp) => {
+            document.querySelector('.input-stream-streamKey').textContent = resp.streamKey;
+        })
+        .catch((err) => {
+            alert("An error happened\n" + err);
+        });
+}
+
 document.querySelector('.dashboard-stream-details-save')
     .addEventListener('mouseup', evt => {
         sendStreamSettings();
@@ -88,4 +122,9 @@ document.querySelector('.dashboard-stream-details-save')
 document.querySelector('.dashboard-user-details-save')
     .addEventListener('mouseup', evt => {
         sendUserSettings();
+    });
+
+document.querySelector('.dashboard-stream-streamKey-gen')
+    .addEventListener('mouseup', evt => {
+        requestNewStreamKey();
     });

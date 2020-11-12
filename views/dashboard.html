@@ -20,6 +20,11 @@
         <input class="input-stream-directory" type="text" value="{{channel.directory}}"/>
         <a class="settings-save dashboard-stream-details-save" href="#" onclick="return false;">Save</a>
     </div>
+    <div class="dashboard-stream-details">
+        <p>Current Stream Key:</p>
+        <p class="input-stream-streamKey key-hidden">{{channel.streamKey}}</p>
+        <a class="settings-save dashboard-stream-streamKey-gen" href="#" onclick="return false;">Generate New Stream Key</a>
+    </div>
     <div class="dashboard-user-details">
         <p>User DisplayName:</p>
         <input class="input-user-displayName" type="text" value="{{user.displayName}}"/>

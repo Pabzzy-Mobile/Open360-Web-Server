@@ -1,4 +1,5 @@
 const DatabaseAccess = require('../database/');
+const {ChannelStatus} = require('../util.js');
 
 // CHANNEL PAGES RESPONSES
 
@@ -14,25 +15,31 @@ function handleChannelByUsernameGET(req, res){
     if (username != null) {
         // Find the user
         DatabaseAccess.find.channelByUsername(username)
-            .then(channel => {
+            .then((channel) => {
                 if (channel === {} || channel === null) {
                     // Render the channel not found page
                     res.render("channel_not_found", {
                         user: req.user,
                         channel: false,
+                        channelUsername: username,
+                        online: false,
                         req: JSON.stringify(req.user),
                         data: JSON.stringify(channel) || null,
                         message: 'Search for a user using /username\nThe current query is ' + JSON.stringify(username)
                     });
                     return;
                 }
+                // WARN: Passing in the stream key is bad, consider database
+                let videoStreamPath = req.protocol + '://' + req.get('host') + ":80" + "/video/" + channel.username + ".m3u8";
                 // Render the channel page
                 res.render("channel", {
                     user: req.user,
                     channel: channel,
+                    channelUsername: username,
+                    online: channel.channelStatus == ChannelStatus.ONLINE,
                     req: JSON.stringify(req.user),
                     data: JSON.stringify(channel) || null,
-                    message: null
+                    message: videoStreamPath
                 });
             })
             .catch(err => {
@@ -40,6 +47,8 @@ function handleChannelByUsernameGET(req, res){
                 res.render("channel_not_found", {
                     user: req.user,
                     channel: false,
+                    channelUsername: username,
+                    online: false,
                     req: JSON.stringify(req.user),
                     data: null,
                     message: err
@@ -50,6 +59,7 @@ function handleChannelByUsernameGET(req, res){
         res.render("channel", {
             user: req.user,
             channel: false,
+            online: false,
             req: JSON.stringify(req.user),
             data: null,
             message: 'Search for a user using /&lt;username&gt;\nThe current query is ' + JSON.stringify(username)

@@ -3,9 +3,12 @@
 * {
   padding: 0;
   margin: 0;
-  background: #2C2F33;
   color: white;
   font-family: "JetBrains Mono", sans-serif;
+}
+
+body {
+  background: #2C2F33;
 }
 
 // HEADER
@@ -119,6 +122,14 @@
 .media{
   background: black;
   flex: 1 1 720px;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+
+  .stream-video {
+    flex: 1 1 0;
+    height: 100%;
+  }
 }
 
 .chat{

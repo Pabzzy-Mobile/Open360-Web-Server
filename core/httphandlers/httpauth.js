@@ -26,70 +26,110 @@ function handleAuthLoginPOST(req, res, passport){
 
 function handleAuthRegisterPOST(req, res){
     let cryptography = saltPassword(req.body.password);
-    // Cast POST data to userData
-    let userData = new UserData();
-    userData.userId = DatabaseAccess.util.generateUserId();
-    userData.username = req.body.username;
-    userData.displayName = req.body.username;
-    userData.email = req.body.email;
-    userData.password = cryptography.password;
-    userData.salt = cryptography.salt;
-    userData.subscriptions = [];
-    userData.active = true;
-    userData.type = UserDataTypes.ALL_INFO;
-    // Create channel data
-    let channelData = new ChannelData();
-    channelData.channelStatus = ChannelStatus.OFFLINE;
-    channelData.streamKey = DatabaseAccess.util.generateStreamKey();
-    channelData.userId = userData.userId;
-    channelData.username = userData.username;
-    channelData.title = "Stream Title";
-    channelData.description = "Stream Description";
-    channelData.directory = "universal";
+    // Generate Id and Stream Key
+    let generationPromises = [
+        DatabaseAccess.util.generateUserId(),
+        DatabaseAccess.util.generateStreamKey(),
+    ]
+    Promise.all(generationPromises)
+        .then((data) => {
+            // Cast POST data to userData
+            let userData = new UserData();
+            userData.userId = data[0];
+            userData.username = req.body.username;
+            userData.displayName = req.body.username;
+            userData.email = req.body.email;
+            userData.password = cryptography.password;
+            userData.salt = cryptography.salt;
+            userData.subscriptions = [];
+            userData.active = true;
+            userData.type = UserDataTypes.ALL_INFO;
+            // Create channel data
+            let channelData = new ChannelData();
+            channelData.channelStatus = ChannelStatus.OFFLINE;
+            channelData.streamKey = data[1];
+            channelData.userId = userData.userId;
+            channelData.username = userData.username;
+            channelData.title = "Stream Title";
+            channelData.description = "Stream Description";
+            channelData.directory = "universal";
 
-    if (NotAllowedUsernames.includes(userData.username)){
-        res.render('register',{
-            error: "This username is not allowed"
-        });
-        return;
-    }
-    if (!IsEmail(userData.email)) {
-        res.render('register',{
-            error: "Insert a valid email"
-        });
-        return;
-    }
-    // Check if the user already is taken
-    DatabaseAccess.find.userAuthExistsByUserData(userData)
-        .then(message => {
-            if (message !== "ok") {
+            if (NotAllowedUsernames.includes(userData.username)){
                 res.render('register',{
-                    error: message
+                    error: "This username is not allowed"
                 });
                 return;
             }
-            let promises = [
-                // Add the user to the database
-                DatabaseAccess.write.addUserAllInfo(userData),
-                // Add the user's channel to the database
-                DatabaseAccess.write.addChannel(channelData)
-            ]
-            Promise.all(promises)
-                .then(data => {
-                    res.redirect('/auth/login');
+            if (!IsEmail(userData.email)) {
+                res.render('register',{
+                    error: "Insert a valid email"
+                });
+                return;
+            }
+            // Check if the user already is taken
+            DatabaseAccess.find.userAuthExistsByUserData(userData)
+                .then(message => {
+                    if (message !== "ok") {
+                        res.render('register',{
+                            error: message
+                        });
+                        return;
+                    }
+                    let promises = [
+                        // Add the user to the database
+                        DatabaseAccess.write.addUserAllInfo(userData),
+                        // Add the user's channel to the database
+                        DatabaseAccess.write.addChannel(channelData),
+                    ]
+                    Promise.all(promises)
+                        .then(data => {
+                            res.redirect('/auth/login');
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.render('register',{
+                                error: "An Internal error happened. Oops..."
+                            });
+                        })
                 })
                 .catch(err => {
                     console.log(err);
                     res.render('register',{
                         error: "An Internal error happened. Oops..."
                     });
-                })
+                });
+        });
+}
+
+function handleStreamKeyCheckPOST(req, res) {
+    if (!req.body.streamKey){
+        res.status(400).json({message: "No key provided for the check"});
+    }
+    let StreamKey = req.body.streamKey;
+    DatabaseAccess.find.channelStreamKeyExists(StreamKey)
+        .then((exists) => {
+            res.status(200).json({result: exists, message: "Ok"});
         })
-        .catch(err => {
-            console.log(err);
-            res.render('register',{
-                error: "An Internal error happened. Oops..."
-            });
+        .catch((err) => {
+            console.error(err);
+            res.status(500).json({message: "Internal Server Error happened. Oops..."})
+        })
+}
+
+function handleNewStreamKeyPOST(req, res){
+    let userId = req.user.userId;
+    DatabaseAccess.util.generateStreamKey()
+        .then((newStreamKey) => {
+            DatabaseAccess.write.setChannelStreamKey(userId, newStreamKey)
+                .then((success) => {
+                    res.status(200).json({streamKey: newStreamKey, message: "Ok"});
+                })
+                .catch((err) => {
+                    res.status(500).json({message: "A Internal Server Error happened. Oops..."});
+                });
+        })
+        .catch((err) => {
+            res.status(500).json({message: "A Internal Server Error happened. Oops..."});
         })
 }
 
@@ -98,5 +138,7 @@ module.exports = {
     handleAuthLoginPOST,
     handleAuthRegisterGET,
     handleAuthRegisterPOST,
-    handleAuthLogoutGET
+    handleAuthLogoutGET,
+    handleStreamKeyCheckPOST,
+    handleNewStreamKeyPOST
 }

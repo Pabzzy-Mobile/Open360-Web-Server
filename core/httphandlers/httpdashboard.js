@@ -39,6 +39,12 @@ function tagsToString (channelTagsArray){
 function handleDashboardPOST(req, res){
     let newSettings = new Settings().cast(req.body);
 
+    let displayName = newSettings.user.displayName
+
+    if (displayName.length > 32) {
+        newSettings.user.displayName = displayName.substr(0,32);
+    }
+
     switch (newSettings.type) {
         case SettingsType.USER_DATA:
             DatabaseAccess.write.saveUserSettings(req.user.userId, newSettings)

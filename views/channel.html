@@ -4,13 +4,24 @@
     <meta charset="UTF-8">
     <title>{{channel.username}} - Open360</title>
     <link rel="stylesheet" href="/public/styles/master.css">
+    <link href="https://vjs.zencdn.net/7.8.4/video-js.css" rel="stylesheet" />
 </head>
 <body>
 {% include "includes/header.html" %}
 <div class="channel-content content depends-on-sidebar">
     {% include "includes/sidebar.html" %}
     <div class="media-and-chat">
-        <div class="media"></div>
+        {% if online %}
+        <div class="media" >
+            <video id='hls-stream' class="stream-video video-js vjs-default-skin" width="854" height="480" controls>
+                <source src="{{message}}" type="application/x-mpegURL">
+            </video>
+        </div>
+        {% else %}
+        <div class="media">
+            <p>This channel is currently not streaming.</p>
+        </div>
+        {% endif %}
         <div class="chat">
             <div class="chat-details">
                 <h1>STREAM CHAT</h1>
@@ -22,7 +33,7 @@
                 <input class="message-box-text-input" type="text" placeholder="message...">
                 <a class="message-box-send" href="#" onclick="return false;">Send</a>
                 {% else %}
-                <p>You need to be logged in to message in {{channel.username}}'s chat</p>
+                <p>You need to be logged in to message in {{channelUsername}}'s chat</p>
                 {% endif %}
             </div>
         </div>
@@ -41,12 +52,18 @@
 </div>
 <script src="/public/javascript/feature-chat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+<script src="https://vjs.zencdn.net/7.8.4/video.js"></script>
 <script>
-    createLogElement("Connecting to the chat room of " + "{{channel.username}}");
+    //{% if online %}
+    let player = videojs('hls-stream');
+    player.play();
+    //{% endif %}
+
+    createLogElement("Connecting to the chat room of " + "{{channelUsername}}");
     //{% if user %}
-    let socket = io.connect("192.168.1.160:4002", {query: "channel={{channel.username}}&user={{user.displayName}}"});
+    let socket = io.connect("192.168.1.160:4002", {query: "channel={{channelUsername}}&user={{user.displayName}}"});
     //{% else %}
-    let socket = io.connect("192.168.1.160:4002", {query: "channel={{channel.username}}"});
+    let socket = io.connect("192.168.1.160:4002", {query: "channel={{channelUsername}}"});
     //{% endif %}
     socket.on("connect", () => {
         createLogElement("Connected!");

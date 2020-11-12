@@ -26,6 +26,7 @@ let { DatabaseAccess, Tests, Util, HTTPResponses} = require("./core/");
 
 // Tell the server what port it should use. 4000 is for testing purposes
 const PORT = parseInt(process.env.PORT) || 4000;
+const BIND_ADDRESS = process.env.BIND_ADDRESS || "0.0.0.0";
 
 // SET UP
 
@@ -148,6 +149,14 @@ app.get('/auth/logout', function (req, res) {
    HTTPResponses.auth.handleAuthLogoutGET(req, res);
 });
 
+app.post('/auth/skc', function (req, res) {
+    HTTPResponses.auth.handleStreamKeyCheckPOST(req, res);
+})
+
+app.post('/auth/nsk', Util.IsLoggedIn, function (req, res) {
+    HTTPResponses.auth.handleNewStreamKeyPOST(req, res);
+})
+
 // DASHBOARD AND SETTINGS REQUESTS
 
 app.get('/user/dashboard', Util.IsLoggedIn, function (req, res) {
@@ -168,18 +177,28 @@ app.get('/algo/users/id/:id', function (req, res){
     HTTPResponses.algo.handleAlgoUserByIdGET(req, res);
 });
 
+// VIDEO REQUESTS
+
+app.get('/video/:id', function (req, res) {
+    HTTPResponses.video.handleVideoByUsernamePOST(req, res);
+});
+
+app.post('/video/skso', function (req, res) {
+    HTTPResponses.video.handleVideoSetChannelOnlinePOST(req, res);
+});
+
 // DEBUG REQUESTS
 
 app.get('/debug/runTests', function (req, res) {
    Tests.run();
-})
+});
 
 // ---- end of RESPONSES AND REQUESTS ----
 
 
 // SERVER LISTEN
 
-http.listen(PORT, function (){
+http.listen(PORT, BIND_ADDRESS,function (){
    console.info("Express listening on *:" + PORT);
 });
 
