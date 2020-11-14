@@ -6,9 +6,6 @@ services:
     container_name: open-360-web-server
     hostname: open360-web-server
     restart: on-failure
-    links:
-      - session-redis
-      - mongodb
     environment:
       - PORT=80
     ports:
@@ -20,41 +17,27 @@ services:
     #  - node
     #  - "--inspect-brk=0.0.0.0"
     #  - "main.js"
+    #END OF DEBUG
     networks:
       session-network:
       mongodb-network:
       chat-network:
       ingest-network:
-
-  session-redis:
-    image: redis
-    container_name: open360-redis-session
-    hostname: open360-redis-session
-    ports:
-    - "6379:6379"
-    volumes:
-      - "/usr/src/open360/session_data:/data"
-      - "/usr/src/open360/redis.conf:/usr/local/etc/redis/redis.conf"
-    networks:
-      session-network:
-
-  mongodb:
-    image: mongo
-    container_name: open360-mongodb
-    hostname: open360-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-    - "/usr/src/open360/mongo:/data/db"
-    networks:
-      mongodb-network:
+      api-network:
 
 networks:
   session-network:
+    external: true
+    name: "open360-session-network"
   mongodb-network:
+    external: true
+    name: "open360-mongodb-network"
   chat-network:
     external: true
     name: "open360-chat-network"
   ingest-network:
     external: true
     name: "open360-ingest-network"
+  api-network:
+    external: true
+    name: "open360-api-network"
