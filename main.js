@@ -22,7 +22,7 @@ let RedisClient = redis.createClient({
 });
 
 // Require our core library
-let { DatabaseAccess, Tests, Util, HTTPResponses} = require("./core/");
+let { DatabaseAccess, Tests, Util, HTTPResponses, API} = require("./core/");
 
 // Tell the server what port it should use. 4000 is for testing purposes
 const PORT = parseInt(process.env.PORT) || 4000;
@@ -149,9 +149,9 @@ app.get('/auth/logout', function (req, res) {
    HTTPResponses.auth.handleAuthLogoutGET(req, res);
 });
 
-app.post('/auth/skc', function (req, res) {
-    HTTPResponses.auth.handleStreamKeyCheckPOST(req, res);
-})
+//app.post('/auth/skc', function (req, res) {
+//    HTTPResponses.auth.handleStreamKeyCheckPOST(req, res);
+//})
 
 app.post('/auth/nsk', Util.IsLoggedIn, function (req, res) {
     HTTPResponses.auth.handleNewStreamKeyPOST(req, res);
@@ -183,9 +183,9 @@ app.get('/video/:id', function (req, res) {
     HTTPResponses.video.handleVideoByUsernamePOST(req, res);
 });
 
-app.post('/video/skso', function (req, res) {
-    HTTPResponses.video.handleVideoSetChannelOnlinePOST(req, res);
-});
+//app.post('/video/skso', function (req, res) {
+//    HTTPResponses.video.handleVideoSetChannelOnlinePOST(req, res);
+//});
 
 // DEBUG REQUESTS
 
@@ -195,12 +195,47 @@ app.get('/debug/runTests', function (req, res) {
 
 // ---- end of RESPONSES AND REQUESTS ----
 
-
 // SERVER LISTEN
 
 http.listen(PORT, BIND_ADDRESS,function (){
    console.info("Express listening on *:" + PORT);
 });
+
+// CONNECT TO THE INTERNAL API
+
+// Socket for connecting to the internal API
+const io = require("socket.io-client");
+
+const socket = io("ws://open-360-api-sock:4000", {
+    reconnectionDelayMax: 10000,
+    query: {
+        name: "open360:web-api-server"
+    }
+});
+
+socket.on("connect", function (){
+    console.log("Connected to Internal API");
+    socket.emit("log",{log:"Connected to Internal API", type:"info"});
+});
+
+socket.on("web-api", (data) => {
+    if (data.type == "question"){
+        switch (data.package.prompt){
+            case "checkKeyExists":
+                API.channel.handleCheckKeyExists(socket, data);
+                break;
+        }
+    }
+    if (data.type == "message"){
+        switch (data.package.prompt){
+            case "setOnline":
+                API.channel.handleSetChannelOnline(socket, data);
+                break;
+        }
+    }
+});
+
+// ------ END OF INTERNAL API RESPONSES
 
 // ERROR HANDLING
 
