@@ -224,6 +224,9 @@ socket.on("web-api", (data) => {
             case "checkKeyExists":
                 API.channel.handleCheckKeyExists(socket, data);
                 break;
+            case "status":
+                socket.emit("api-message", {target: data.ack, ack: "web-api",type: "message", package: {prompt: "status-reply", status: "alive"}});
+                break;
         }
     }
     if (data.type == "message"){
