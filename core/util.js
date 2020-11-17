@@ -126,7 +126,21 @@ const ChannelStatus = {
     "ONLINE": 0,
     "OFFLINE": 1,
     "LURKING": 2,
-    "UNKNOWN": 3
+    "UNKNOWN": 3,
+
+    /** @param {ChannelStatus} channelStatus */
+    toString: (channelStatus) => {
+        switch (channelStatus){
+            case 0:
+                return "ONLINE";
+            case 1:
+                return "OFFLINE";
+            case 2:
+                return "LURKING";
+            case 3:
+                return "UNKNOWN";
+        }
+    }
 }
 
 /**

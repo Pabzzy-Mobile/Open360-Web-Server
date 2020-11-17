@@ -1,5 +1,5 @@
 const DatabaseAccess = require("../database/");
-const {ChannelStatus} = require("../util.js");
+const {ChannelStatus, ChannelData} = require("../util.js");
 
 function handleCheckKeyExists(socket, data){
     let StreamKey = data.package.streamKey;
@@ -30,7 +30,37 @@ function handleSetChannelOnline(socket, data) {
         })
 }
 
+function handleStreamStatus(socket, data) {
+    let username = data.package.username;
+    DatabaseAccess.find.channelByUsername(username)
+        .then((channelData) => {
+            if (channelData == null) {
+                socket.emit("api-message", {target: data.ack, ack: "web-api", type: "message", package: {prompt: "streamStatus-reply", result: {name: "UNKNOWN", code: 3}, message: "Not Found"}});
+                return;
+            }
+            let channelStatus = ChannelStatus.toString(channelData.channelStatus);
+            socket.emit("api-message", {
+                target: data.ack,
+                ack: "web-api",
+                type: "message",
+                package: {
+                    prompt: "streamStatus-reply",
+                    result: {
+                        name: channelStatus,
+                        code: channelData.channelStatus
+                    },
+                    message: "Ok"
+                }
+            });
+        })
+        .catch((err) => {
+            let message = err.toString();
+            socket.emit("log",{log:message, type:"error"});
+        });
+}
+
 module.exports = {
     handleCheckKeyExists,
-    handleSetChannelOnline
+    handleSetChannelOnline,
+    handleStreamStatus
 }

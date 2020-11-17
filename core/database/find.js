@@ -243,6 +243,10 @@ function channelByUsername (username){
         // Get the user
         userByUsername(username)
             .then(user => {
+                if (user == null) {
+                    resolve(null);
+                    return;
+                }
                 channelByUserId(user.userId)
                     .then(channel => {
                         resolve(channel);
