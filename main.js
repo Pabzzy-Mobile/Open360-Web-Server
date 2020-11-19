@@ -225,7 +225,15 @@ socket.on("web-api", (data) => {
                 API.channel.handleCheckKeyExists(socket, data);
                 break;
             case "status":
-                socket.emit("api-message", {target: data.ack, ack: "web-api",type: "message", package: {prompt: "status-reply", status: "alive"}});
+                socket.emit("api-message", {
+                    target: data.ack,
+                    ack: "web-api",
+                    type: "message",
+                    package: {
+                        prompt: "status-reply",
+                        status: "alive"
+                    }
+                });
                 break;
             case "streamStatus":
                 API.channel.handleStreamStatus(socket, data);
