@@ -237,6 +237,10 @@ socket.on("web-api", (data) => {
                 break;
             case "streamStatus":
                 API.channel.handleStreamStatus(socket, data);
+                break;
+            case "streamStats":
+                API.channel.handleStreamStats(socket, data);
+                break;
         }
     }
     if (data.type == "message"){

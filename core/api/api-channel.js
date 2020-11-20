@@ -49,7 +49,7 @@ function handleSetChannelOnline(socket, data) {
 }
 
 function handleStreamStatus(socket, data) {
-    let username = data.package.username;
+    let username = data.package.data.username;
     DatabaseAccess.find.channelByUsername(username)
         .then((channelData) => {
             if (channelData == null) {
@@ -86,8 +86,61 @@ function handleStreamStatus(socket, data) {
         });
 }
 
+function handleStreamStats(socket, data) {
+    let username = data.package.data.username;
+    DatabaseAccess.find.channelByUsername(username)
+        .then((channelData) => {
+            if (channelData == null) {
+                socket.emit("api-message", {
+                    target: data.ack,
+                    ack: "web-api",
+                    type: "message",
+                    package: {
+                        prompt: "streamStats-reply",
+                        data: {
+                                streamTitle: "",
+                                streamDescription: "",
+                                streamTags: [],
+                                streamDirectory: "",
+                                channelOwner: "",
+                                channelStatus: {name: "UNKNOWN", code: 3}
+                            },
+                        message: "Not Found"
+                    }
+                });
+                return;
+            }
+            let channelStatus = ChannelStatus.toString(channelData.channelStatus);
+            socket.emit("api-message", {
+                target: data.ack,
+                ack: "web-api",
+                type: "message",
+                package: {
+                    prompt: "streamStats-reply",
+                    data: {
+                        streamTitle: channelData.title,
+                        streamDescription: channelData.description,
+                        streamTags: channelData.tags,
+                        streamDirectory: channelData.directory,
+                        channelOwner: channelData.username,
+                        channelStatus: {
+                            name: channelStatus,
+                            code: channelData.channelStatus
+                        }
+                    },
+                    message: "Ok"
+                }
+            });
+        })
+        .catch((err) => {
+            let message = err.toString();
+            socket.emit("log",{log:message, type:"error"});
+        });
+}
+
 module.exports = {
     handleCheckKeyExists,
     handleSetChannelOnline,
-    handleStreamStatus
+    handleStreamStatus,
+    handleStreamStats
 }
