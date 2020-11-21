@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <title>Open360</title>
     <link rel="stylesheet" href="/public/styles/master.css">
+    <link rel="shortcut icon" type="image/png" href="/public/favicon.png"/>
 </head>
 <body>
 {% include "includes/header.html" %}
-<div class="channel-content content depends-on-sidebar">
+<div class="channel-content content depends-on-sidebar depends-on-header">
     {% include "includes/sidebar.html" %}
     <p>The channel was not found <a href="/">return to the home page</a></p>
     {% if message %}

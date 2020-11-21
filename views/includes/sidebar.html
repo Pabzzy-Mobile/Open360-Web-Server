@@ -1,4 +1,12 @@
-<div class="sidebar">
-    <a class="sidebar-collapse" href="#" onclick="return false;">collapse</a>
+<div class="sidebar depends-on-header">
+    <a class="sidebar-collapse button" href="#" onclick="return false;"><img src="/public/assets/uisheet/collapse.png" /></a>
+    <div class="small-icon"><img src="/public/assets/uisheet/follow.png"><p class="sidebar-text">FOLLOWING</p></div>
+    <div class="sidebar-following"></div>
+    <div class="small-icon"><img src="/public/assets/uisheet/peep.png"><p class="sidebar-text">RECOMMENDED</p></div>
+    <div class="sidebar-recommended"></div>
 </div>
 <script src="/public/javascript/feature-sidebar.js"></script>
+<script type="text/javascript">
+    sideBarCollapsed = true;
+    updateElements();
+</script>

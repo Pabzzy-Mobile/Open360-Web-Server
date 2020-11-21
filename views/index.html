@@ -5,11 +5,12 @@
     <meta charset="utf-8">
     <title>Home</title>
     <link rel="stylesheet" href="/public/styles/master.css">
+    <link rel="shortcut icon" type="image/png" href="/public/favicon.png"/>
 </head>
 
 <body>
     {% include "includes/header.html" %}
-    <div class="home-content content depends-on-sidebar">
+    <div class="home-content content depends-on-sidebar depends-on-header">
         {% include "includes/sidebar.html" %}
         <div class="featured">
             <div class="channels-featured"></div>
@@ -19,7 +20,6 @@
             {% include "includes/footer.html" %}
         </div>
     </div>
-    <script src="/public/javascript/feature-users.js"></script>
     <script src="/public/javascript/feature-home-channels.js"></script>
     <script type="text/javascript">
         requestAndCreateChannelElements().then((featuredChannels) => {

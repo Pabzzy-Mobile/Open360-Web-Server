@@ -45,27 +45,75 @@ let createChannelElement = function (channelData) {
     let channelRoot = document.createElement("div");
     channelRoot.classList.add("channel-container");
 
+    // Thumbnail
     let channelWindow = document.createElement("a");
     channelRoot.setAttribute("href", "/" + channelData.username);
     channelWindow.classList.add("channel-window");
     channelWindow.style.backgroundImage = "url(\"/public/thumbs/" + channelData.userId + "_stream_thumbnail.png\")";
     channelRoot.append(channelWindow);
+
+    // Channel details Element
+    let channelDetails = document.createElement("div");
+    channelDetails.classList.add("channel-details");
+
+    // Left/Right sides
+    let leftSide = document.createElement("div");
+    leftSide.classList.add("channel-left");
+    let rightSide = document.createElement("div");
+    rightSide.classList.add("channel-right");
+
+    // User pic
+    let userPicElement = document.createElement("a");
+    userPicElement.setAttribute("href", "/" + channelData.username);
+    userPicElement.classList.add("channel-user");
+    let userPic = document.createElement("div");
+    userPic.style.backgroundImage = "url(\"/public/pp/" + channelData.userId + "_pp.png\")";
+    userPic.classList.add("channel-user-pic");
+    userPicElement.append(userPic);
+    leftSide.append(userPicElement);
+
+    // Channel Details Elements
     let channelTitle = document.createElement("p");
     channelTitle.classList.add("channel-title");
     channelTitle.innerText = channelData.title;
-    channelRoot.append(channelTitle);
+    rightSide.append(channelTitle);
+    let channelDirectory = document.createElement("a");
+    channelDirectory.classList.add("channel-directory");
+    channelDirectory.innerText = channelData.directory;
+    channelDirectory.setAttribute("href", "/directory/" + channelData.directory);
+    rightSide.append(channelDirectory);
 
-    let channelUserCard = createUserCardElement({userId: channelData.userId, username: channelData.username});
-    channelRoot.append(channelUserCard);
+    //let channelUserCard = createUserCardElement({userId: channelData.userId, username: channelData.username});
+    //channelRoot.append(channelUserCard);
+
+    let userElement = document.createElement("a");
+    userElement.setAttribute("href", "/" + channelData.username);
+    userElement.classList.add("channel-user");
+    let usernameP = document.createElement("p");
+    usernameP.classList.add("channel-user-name");
+    usernameP.innerText = channelData.username;
+    userElement.append(usernameP);
+    let data = document.createElement("data");
+    data.setAttribute("userId", channelData.userId);
+    userElement.dataset.userId = channelData.userId;
+    userElement.dataset.username = channelData.username;
+    rightSide.append(userElement);
 
     let channelTagList = document.createElement("div");
     channelTagList.classList.add("channel-tag-list");
     channelData.tags.forEach((tag) => {
-        let tagElement = document.createElement("p");
+        let tagElement = document.createElement("a");
         tagElement.classList.add("channel-tag");
         tagElement.innerText = tag;
+        tagElement.setAttribute("href", "/tags/" + tag);
         channelTagList.append(tagElement);
     });
-    channelRoot.append(channelTagList);
+    rightSide.append(channelTagList);
+
+    channelDetails.append(leftSide);
+    channelDetails.append(rightSide);
+
+    channelRoot.append(channelDetails);
+
     return channelRoot;
 }

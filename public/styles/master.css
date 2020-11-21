@@ -66,26 +66,131 @@ body {
 }
 
 .header {
-  height: 40px;
+  height: 50px;
   background: #23272A;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  box-shadow: rgba(0, 0, 52, 0.3) 0px 1px 2px 0px, rgba(0, 0, 52, 0.3) 0px 0px 2px 0px;
 }
 .header .header-home {
   font-size: 32px;
 }
+.header .header-home img {
+  height: 32px;
+  margin: 6px 10px;
+}
 .header .header-profile {
   float: right;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.header .header-profile > * {
+  margin: 2px 6px;
+}
+.header .header-profile .header-dashboard-button {
+  flex: 1 1 0;
+  border-radius: 6px;
+  padding: 4px;
+  margin: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+}
+.header .header-profile .header-dashboard-button * {
+  flex: 1 0 0;
+}
+.header .header-profile .header-dashboard-button:hover {
+  background: #748386;
+}
+.header .header-profile .header-dashboard-button img {
+  height: 20px;
+  text-align: center;
+}
+
+.sidebar {
+  width: 250px;
+  position: fixed;
+  top: 50px;
+  left: 0;
+  bottom: 0;
+  box-shadow: rgba(0, 0, 52, 0.3) 1px 0px 2px 0px, rgba(0, 0, 52, 0.3) 0px 0px 2px 0px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  /* "auto" or "thin"  */
+  scrollbar-color: #000034 transparent;
+  /* scroll thumb & track */
+}
+.sidebar.sidebar-collapsed {
+  width: 50px;
+}
+.sidebar.header-collapsed {
+  top: 0;
+}
+.sidebar.sidebar-collapsed .sidebar-collapse img {
+  transform: scaleX(1);
+}
+.sidebar.sidebar-collapsed .sidebar-text {
+  visibility: hidden;
+}
+.sidebar:not(.sidebar-collapsed) .sidebar-collapse img {
+  transform: scaleX(-1);
+}
+.sidebar:not(.sidebar-collapsed) .sidebar-text {
+  visibility: visible;
+}
+.sidebar .sidebar-collapse {
+  align-self: flex-end;
+}
+
+.small-icon {
+  border-radius: 6px;
+  padding: 4px;
+  margin: 8px;
+  display: flex;
+  align-items: stretch;
+}
+.small-icon img {
+  height: 20px;
+  width: 20px;
+  text-align: center;
+  flex: 1 1 0;
+}
+
+.button {
+  border-radius: 6px;
+  padding: 4px;
+  margin: 8px;
+  display: flex;
+  align-items: stretch;
+}
+.button:hover {
+  background: #748386;
+}
+.button img {
+  height: 20px;
+  width: 20px;
+  text-align: center;
+  flex: 1 1 0;
 }
 
 .content {
   margin-left: 250px;
-  margin-top: 40px;
+  margin-top: 50px;
+  position: relative;
 }
-.content.side-bar-collapsed {
+.content.sidebar-collapsed {
   margin-left: 50px;
+}
+.content.header-collapsed {
+  margin-top: 0;
 }
 
 .home-content {
@@ -101,11 +206,34 @@ body {
 }
 
 .channel-container {
-  padding: 6px;
   display: inline-block;
-  border: 1px solid whitesmoke;
-  border-radius: 6px;
   margin: 20px;
+  text-decoration: none;
+}
+.channel-container .channel-details {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.channel-container .channel-left {
+  flex: 0 1 0;
+  margin: 2px 4px 0 0;
+}
+.channel-container .channel-right {
+  flex: 1 1 0;
+  margin: 2px 0 0 4px;
+}
+.channel-container a {
+  text-decoration: none;
+}
+.channel-container a p, .channel-container a h1, .channel-container a h2, .channel-container a h3 {
+  text-decoration: none;
+}
+.channel-container a:hover {
+  color: #FFB8DE;
+}
+.channel-container a:hover p, .channel-container a:hover h1, .channel-container a:hover h2, .channel-container a:hover h3 {
+  color: #FFB8DE;
 }
 .channel-container .channel-window {
   width: 256px;
@@ -114,18 +242,31 @@ body {
   background: #23272A;
 }
 .channel-container .channel-title {
-  font-size: 32px;
+  font-size: 20px;
 }
 .channel-container .channel-tag-list {
   display: block;
-  height: 50px;
+  margin: 4px;
 }
 .channel-container .channel-tag-list .channel-tag {
-  padding: 6px;
-  border-radius: 6px;
-  margin: 0 2px;
-  background: #23272A;
+  padding: 0 6px;
+  border-radius: 0 6px 6px 0;
+  margin: 0 14px;
+  background: white;
+  color: #23272A;
   display: inline-block;
+  transform: rotate(-2deg);
+  position: relative;
+  font-size: 16px;
+}
+.channel-container .channel-tag-list .channel-tag::before {
+  content: " ";
+  height: 20px;
+  width: 20px;
+  background: url("/public/assets/uisheet/tag.png");
+  background-size: 100% 100%;
+  position: absolute;
+  left: -19.5px;
 }
 .channel-container .channel-user {
   text-decoration: none;
@@ -133,8 +274,8 @@ body {
   align-items: center;
 }
 .channel-container .channel-user .channel-user-pic {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   margin: 8px 2px;
   border-radius: 50%;
   display: inline-block;
@@ -226,9 +367,10 @@ body {
 
 .message-box {
   flex: 0 1 40px;
-  display: flex;
-  flex-direction: row;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 .message-box * {
   margin: 2px;
@@ -240,29 +382,30 @@ body {
   margin: 10px 28%;
   padding: 1%;
   border-radius: 8px;
-  background: #23272A60;
-  border: whitesmoke 1px solid;
+  background: rgba(35, 39, 42, 0.4);
+  border: #F2F3F4 1px solid;
   font-size: 12px;
   text-align: center;
   text-decoration: none;
   visibility: hidden;
 }
 .message-box .message-box-text-input {
-  flex: 1 1 80px;
+  flex: 1 1 0;
   border-radius: 6px;
-  border: 1px solid whitesmoke;
+  border: 1px solid #F2F3F4;
   padding: 5px;
-  background: black;
-  color: whitesmoke;
+  background: #000034;
+  color: #F2F3F4;
 }
 .message-box .message-box-send {
   flex: 1 1 0;
   border-radius: 6px;
   padding: 6px;
-  background: wheat;
+  background: #F1FFFA;
   color: #23272A;
   text-decoration: none;
   text-align: center;
+  align-self: flex-end;
 }
 
 .dashboard-content {
@@ -275,32 +418,24 @@ body {
   padding: 6px;
   border-radius: 8px;
   background: #23272A;
-  border: whitesmoke solid 1px;
+  border: #F2F3F4 solid 1px;
 }
 .settings-save {
   padding: 6px;
   border-radius: 8px;
-  background: wheat;
+  background: #F2F3F4;
+  color: #23272A;
   border: #23272A solid 1px;
   font-size: 32px;
+  display: inline-block;
 }
-
-.sidebar {
-  width: 250px;
-  position: fixed;
-  top: 40px;
-  left: 0;
-  bottom: 0;
-  overflow-y: scroll;
-  overflow-x: hidden;
-}
-.sidebar.side-bar-collapsed {
-  width: 50px;
+.settings-save:hover {
+  background: #F1FFFA;
 }
 
 .pop-card {
   padding: 2px;
-  background: lightgrey;
+  background: #748386;
 }
 
 .pop-card .pop-card-username {
@@ -309,6 +444,13 @@ body {
 }
 .pop-card .pop-card-displayName {
   font-weight: bold;
+}
+
+footer {
+  display: block;
+}
+footer a {
+  text-align: center;
 }
 
 /*# sourceMappingURL=master.css.map */

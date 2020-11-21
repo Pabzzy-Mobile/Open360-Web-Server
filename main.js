@@ -124,6 +124,16 @@ app.get('/:id', function (req, res){
    HTTPResponses.channel.handleChannelByUsernameGET(req, res);
 });
 
+// Directory page requests
+app.get('/directory/:id', function (req, res) {
+    res.status(200).json("Not Implemented yet");
+});
+
+// Tag page requests
+app.get('/tags/:id', function (req, res) {
+    res.status(200).json("Not Implemented yet");
+});
+
 // LOGIN PAGES
 
 app.get('/auth/login', function (req, res) {

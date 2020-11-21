@@ -51,17 +51,17 @@ let createUserCardElement = function (userData) {
     userElement.dataset.userId = userData.userId;
     userElement.dataset.username = userData.username;
 
-    userElement.addEventListener("mouseenter", function (e){
-        console.log(e);
-        onUserCard(e)
-            .then(r => {});
-    });
-
-    userElement.addEventListener("mouseleave", function (e){
-        if (popCard != null) {
-            popCard.remove();
-        }
-    });
+    //userElement.addEventListener("mouseenter", function (e){
+    //    console.log(e);
+    //    onUserCard(e)
+    //        .then(r => {});
+    //});
+//
+    //userElement.addEventListener("mouseleave", function (e){
+    //    if (popCard != null) {
+    //        popCard.remove();
+    //    }
+    //});
 
     return userElement;
 }

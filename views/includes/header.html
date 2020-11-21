@@ -1,12 +1,15 @@
 <div class="header">
-    <a class="header-home" href="/">Home</a>
+    <a class="header-home" href="/"> <img src="/public/assets/icons/StampTVBright.png" alt="Home" /> </a>
     <div class="header-profile">
     {% if user %}
-        Hello {{user.displayName}} (<a href="/user/dashboard/">{{user.username}}</a>),
-    <a href="/auth/logout">logout</a>
+        <a class="header-dashboard-button" href="/user/dashboard/" title="Access Dashboard">
+            <img src="/public/assets/uisheet/peep.png" alt="dashboard">
+            <p>{{user.displayName}}</p>
+        </a>
+        <!-- Hello {{user.displayName}} (<a href="/user/dashboard/">{{user.username}}</a>),-->
+        <a href="/auth/logout">Logout</a>
     {% else %}
-    Please login
-    <a href="/auth/login">here</a>
+    <a href="/auth/login">Login</a>
     {% endif %}
     </div>
 </div>
