@@ -249,33 +249,6 @@ $sidebar-collapsed-width: 50px;
     font-size: 20px;
   }
 
-  .channel-tag-list{
-    display: block;
-    margin: 4px;
-
-    .channel-tag{
-      padding: 0 6px;
-      border-radius: 0 6px 6px 0;
-      margin: 0 14px;
-      background: white;
-      color: $colour-dark;
-      display: inline-block;
-      transform: rotate(-2deg);
-      position: relative;
-      font-size: 16px;
-
-      &::before{
-        content: " ";
-        height: 20px;
-        width: 20px;
-        background: url("/public/assets/uisheet/tag.png");
-        background-size: 100% 100%;
-        position: absolute;
-        left: -19.5px;
-      }
-    }
-  }
-
   .channel-user{
     text-decoration: none;
     display: flex;
@@ -293,6 +266,33 @@ $sidebar-collapsed-width: 50px;
       font-size: 18px;
       margin: 2px 2px;
       display: inline-block;
+    }
+  }
+}
+
+.tag-list{
+  display: block;
+  margin: 4px;
+
+  .tag{
+    padding: 0 6px;
+    border-radius: 0 6px 6px 0;
+    margin: 0 14px;
+    background: white;
+    color: $colour-dark;
+    display: inline-block;
+    transform: rotate(-2deg);
+    position: relative;
+    font-size: 16px;
+
+    &::before{
+      content: " ";
+      height: 20px;
+      width: 20px;
+      background: url("/public/assets/uisheet/tag.png");
+      background-size: 100% 100%;
+      position: absolute;
+      left: -19.5px;
     }
   }
 }
@@ -336,6 +336,26 @@ $sidebar-collapsed-width: 50px;
     flex: 0 1 40px;
     h1 {
       text-align: center;
+    }
+  }
+}
+
+.channel-content{
+  .channel-stats{
+    .channel-views{
+      position: relative;
+      margin: 0 14px;
+
+      &::before{
+        content: " ";
+        height: 20px;
+        width: 20px;
+        background: url("/public/assets/uisheet/peep.png");
+        background-size: 100% 100%;
+        position: absolute;
+        left: -19.5px;
+        filter: brightness(0.5) sepia(1) saturate(10000%);
+      }
     }
   }
 }

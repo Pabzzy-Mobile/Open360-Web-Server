@@ -13,9 +13,17 @@ function handleChannelByUsernameGET(req, res){
     }
     // Check if the username is not null
     if (username != null) {
-        // Find the user
-        DatabaseAccess.find.channelByUsername(username)
-            .then((channel) => {
+
+        let promises = [
+            DatabaseAccess.find.channelByUsername(username),
+            DatabaseAccess.find.channelViewsByUsername(username)
+        ]
+
+        // Find the channel
+        Promise.all(promises)
+            .then((data) => {
+                let channel = data[0];
+                channel.views = data[1];
                 if (channel === {} || channel === null) {
                     // Render the channel not found page
                     res.render("channel_not_found", {
@@ -37,8 +45,6 @@ function handleChannelByUsernameGET(req, res){
                     channel: channel,
                     channelUsername: username,
                     online: channel.channelStatus == ChannelStatus.ONLINE,
-                    req: JSON.stringify(req.user),
-                    data: JSON.stringify(channel) || null,
                     message: videoStreamPath
                 });
             })

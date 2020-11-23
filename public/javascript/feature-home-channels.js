@@ -100,10 +100,10 @@ let createChannelElement = function (channelData) {
     rightSide.append(userElement);
 
     let channelTagList = document.createElement("div");
-    channelTagList.classList.add("channel-tag-list");
+    channelTagList.classList.add("tag-list");
     channelData.tags.forEach((tag) => {
         let tagElement = document.createElement("a");
-        tagElement.classList.add("channel-tag");
+        tagElement.classList.add("tag");
         tagElement.innerText = tag;
         tagElement.setAttribute("href", "/tags/" + tag);
         channelTagList.append(tagElement);

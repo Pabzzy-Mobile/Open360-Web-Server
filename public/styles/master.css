@@ -244,30 +244,6 @@ body {
 .channel-container .channel-title {
   font-size: 20px;
 }
-.channel-container .channel-tag-list {
-  display: block;
-  margin: 4px;
-}
-.channel-container .channel-tag-list .channel-tag {
-  padding: 0 6px;
-  border-radius: 0 6px 6px 0;
-  margin: 0 14px;
-  background: white;
-  color: #23272A;
-  display: inline-block;
-  transform: rotate(-2deg);
-  position: relative;
-  font-size: 16px;
-}
-.channel-container .channel-tag-list .channel-tag::before {
-  content: " ";
-  height: 20px;
-  width: 20px;
-  background: url("/public/assets/uisheet/tag.png");
-  background-size: 100% 100%;
-  position: absolute;
-  left: -19.5px;
-}
 .channel-container .channel-user {
   text-decoration: none;
   display: flex;
@@ -285,6 +261,31 @@ body {
   font-size: 18px;
   margin: 2px 2px;
   display: inline-block;
+}
+
+.tag-list {
+  display: block;
+  margin: 4px;
+}
+.tag-list .tag {
+  padding: 0 6px;
+  border-radius: 0 6px 6px 0;
+  margin: 0 14px;
+  background: white;
+  color: #23272A;
+  display: inline-block;
+  transform: rotate(-2deg);
+  position: relative;
+  font-size: 16px;
+}
+.tag-list .tag::before {
+  content: " ";
+  height: 20px;
+  width: 20px;
+  background: url("/public/assets/uisheet/tag.png");
+  background-size: 100% 100%;
+  position: absolute;
+  left: -19.5px;
 }
 
 .channel-content {
@@ -324,6 +325,21 @@ body {
 }
 .chat .chat-details h1 {
   text-align: center;
+}
+
+.channel-content .channel-stats .channel-views {
+  position: relative;
+  margin: 0 14px;
+}
+.channel-content .channel-stats .channel-views::before {
+  content: " ";
+  height: 20px;
+  width: 20px;
+  background: url("/public/assets/uisheet/peep.png");
+  background-size: 100% 100%;
+  position: absolute;
+  left: -19.5px;
+  filter: brightness(0.5) sepia(1) saturate(10000%);
 }
 
 .messages {

@@ -39,8 +39,8 @@
             </div>
         </div>
     </div>
-    <div class="channel-details">
-        <div class="channel">
+    <div class="channel-profile">
+        <div class="channel-details">
             <h1>{{channel.title}}</h1>
             <h2>{{channel.description}}</h2>
             <h3>{{channel.directory}}</h3>
@@ -49,6 +49,9 @@
                 <li class="tag">{{tag}}</li>
                 {% endfor %}
             </ul>
+        </div>
+        <div class="channel-stats">
+            <h3 class="channel-views">{{channel.views}}</h3>
         </div>
     </div>
 </div>

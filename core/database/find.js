@@ -300,6 +300,29 @@ function channelStreamKeyExists(streamKey) {
      });
 }
 
+/**
+ * Retrieves the viewership from the userId given
+ * @param {string} username
+ * @return {Promise<number>}
+ */
+function channelViewsByUsername (username){
+    return new Promise((resolve, reject) => {
+        // Set the query
+        let query = { username: username };
+        retrieveDocOne("channel_stats", query)
+            .then(result => {
+                // Check if the user was found
+                if (result == null) {
+                    resolve(0);
+                    return;
+                }
+                // Pass the result to the callback function
+                resolve(result.viewers);
+            })
+            .catch(err => reject(err));
+    });
+}
+
 // ------------------------- Algorithm Related -------------------------
 
 /**
@@ -344,5 +367,6 @@ module.exports = {
     channelByUserId,
     channelByUsername,
     channelStreamKeyExists,
+    channelViewsByUsername,
     algoChannelsCurrentOnline,
 }

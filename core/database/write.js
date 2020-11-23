@@ -165,7 +165,7 @@ function saveUserSettings (userId, newSettings){
 function addChannel (channelData) {
     return new Promise((resolve, reject) => {
         // Make the document
-        let doc = {
+        let channelDoc = {
             userId: channelData.userId,
             username: channelData.username,
             streamKey: channelData.streamKey,
@@ -176,9 +176,20 @@ function addChannel (channelData) {
             tags: channelData.tags,
             directory: channelData.directory
         };
-        // Insert the doc
-        insertDocOne("channel_data", doc)
-            .then(success => resolve(success))
+        // Make the stats document
+        let channelStatsDoc = {
+            userId: channelData.userId,
+            username: channelData.username,
+            viewers: 0
+        }
+        // Make both inserts
+        let promises = [
+            insertDocOne("channel_data", channelDoc),
+            insertDocOne("channel_stats", channelStatsDoc)
+        ]
+
+        Promise.all(promises)
+            .then(success => resolve(success[0] && success[1]))
             .catch(err => reject(err));
     });
 }
@@ -238,7 +249,7 @@ function setChannelStreamKey(userId, newStreamKey){
 }
 
 /**
- * Sets the status of a channel on the database
+ * Adds a module to the channel
  * @param {string} userId
  * @param {ChannelModule} module
  * @return {Promise<boolean>}
@@ -262,7 +273,13 @@ function addModule (userId, module){
     });
 }
 
-function removeModule (userId, module, callback){
+/**
+ * Deletes a module from the database
+ * @param {string} userId
+ * @param {ChannelModule} module
+ * @return {Promise<boolean>}
+ */
+function removeModule (userId, module){
     return new Promise((resolve, reject) => {
         // Set the filter to find the channel by userId
         let filter = {userId: userId};
@@ -284,8 +301,7 @@ function removeModule (userId, module, callback){
 }
 
 /**
- *
- * @param userId
+ * @param {string} userId
  * @param {Settings} newSettings
  * @return {Promise<boolean>}
  */
@@ -298,6 +314,47 @@ function saveChannelSettings (userId, newSettings){
         // Set what fields the database should modify
         let doc = {$set: {title: newSettings.channel.title, description: newSettings.channel.description, tags: tags, directory: newSettings.channel.directory}};
         updateDocOne("channel_data", doc, filter)
+            .then(success => resolve(success))
+            .catch(err => reject(err));
+    });
+}
+
+/**
+ * Increment the viewers count
+ * @param {string} username
+ * @param {number} amount
+ * @param {boolean} increment
+ * @return {Promise<boolean>}
+ */
+function incrementViewerShip(username, amount, increment = true) {
+    return new Promise((resolve, reject) => {
+        // Set the filter to find the channel by userId
+        let filter = {username: username};
+        // Define the increment amount
+        let realAmount = Math.abs(amount) * (increment ? 1 : -1);
+        // Set the update doc
+        let doc = {$inc: {viewers: realAmount}};
+        updateDocOne("channel_stats", doc, filter)
+            .then(success => resolve(success))
+            .catch(err => reject(err));
+    });
+}
+
+/**
+ * Increment the viewers count
+ * @param {string} username
+ * @param {number} count
+ * @return {Promise<boolean>}
+ */
+function setViewerShip(username, count) {
+    return new Promise((resolve, reject) => {
+        // Set the filter to find the channel by userId
+        let filter = {username: username};
+        // Define the increment amount
+        let realAmount = Math.abs(count);
+        // Set the update doc
+        let doc = {$set: {viewers: realAmount}};
+        updateDocOne("channel_stats", doc, filter)
             .then(success => resolve(success))
             .catch(err => reject(err));
     });
@@ -316,5 +373,7 @@ module.exports = {
     saveChannelSettings,
     saveUserSettings,
     setChannelStreamKey,
-    setChannelStatusByKey
+    setChannelStatusByKey,
+    incrementViewerShip,
+    setViewerShip
 }

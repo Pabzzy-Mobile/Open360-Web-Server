@@ -138,9 +138,34 @@ function handleStreamStats(socket, data) {
         });
 }
 
+function handleIncrementViewers(socket, data){
+    let username = data.package.data.username;
+    let amount = data.package.data.amount;
+    let increment = data.package.data.increment;
+    DatabaseAccess.write.incrementViewerShip(username, amount, increment)
+        .then()
+        .catch((err) => {
+            let message = err.toString();
+            socket.emit("log",{log:message, type:"error"});
+        });
+}
+
+function handleSetViewerCount(socket, data){
+    let username = data.package.data.username;
+    let count = data.package.data.count;
+    DatabaseAccess.write.setViewerShip(username, count)
+        .then()
+        .catch((err) => {
+            let message = err.toString();
+            socket.emit("log",{log:message, type:"error"});
+        });
+}
+
 module.exports = {
     handleCheckKeyExists,
     handleSetChannelOnline,
     handleStreamStatus,
-    handleStreamStats
+    handleStreamStats,
+    handleIncrementViewers,
+    handleSetViewerCount
 }

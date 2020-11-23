@@ -258,6 +258,12 @@ socket.on("web-api", (data) => {
             case "setOnline":
                 API.channel.handleSetChannelOnline(socket, data);
                 break;
+            case "incrementViewers":
+                API.channel.handleIncrementViewers(socket, data);
+                break;
+            case "setViewerCount":
+                API.channel.handleSetViewerCount(socket, data);
+                break;
         }
     }
 });
