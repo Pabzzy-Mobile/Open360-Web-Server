@@ -1,50 +1,42 @@
 const DatabaseAccess = require("../database/");
-const {ChannelStatus, ChannelData} = require("../util.js");
+const Util = require("open360-util");
 
 function handleCheckKeyExists(socket, data){
     let StreamKey = data.package.streamKey;
     DatabaseAccess.find.channelStreamKeyExists(StreamKey)
         .then((exists) => {
-            socket.emit("api-message", {
-                target: data.ack,
-                ack: "web-api",
-                type: "message",
-                package: {
-                    prompt: "checkKeyExists-reply",
-                    data: {exists: exists},
-                    message: "Ok"
-                }
-            });
+            let pack = {
+                prompt: "checkKeyExists-reply",
+                data: {exists: exists},
+                message: "Ok"
+            }
+            Util.api.sendMessage(socket, data.ack, "web-api", pack);
         })
         .catch((err) => {
             console.error(err);
-            socket.emit("api-message", {
-                target: data.ack,
-                ack: "web-api",
-                type: "message",
-                package: {
-                    prompt: "checkKeyExists-reply",
-                    data: {exists: false},
-                    message: "Internal Server Error happened. Oops..."
-                }
-            });
+            let pack = {
+                prompt: "checkKeyExists-reply",
+                data: {exists: false},
+                message: "Internal Server Error happened. Oops..."
+            }
+            Util.api.sendMessage(socket, data.ack, "web-api", pack);
         });
 }
 
 function handleSetChannelOnline(socket, data) {
-    let online = ChannelStatus.OFFLINE;
+    let online = Util.ChannelStatus.OFFLINE;
     if (data.package.data.online === true){
-        online = ChannelStatus.ONLINE;
+        online = Util.ChannelStatus.ONLINE;
     }
     let StreamKey = data.package.data.streamKey;
     DatabaseAccess.write.setChannelStatusByKey(StreamKey, online)
         .then((success) => {
-            let message = StreamKey + " has come " + (online == ChannelStatus.ONLINE ? "online" : "offline");
-            socket.emit("log",{log:message, type:"log"});
+            let message = StreamKey + " has come " + (online == Util.ChannelStatus.ONLINE ? "online" : "offline");
+            Util.api.sendLog(socket, message, Util.api.LogType.log);
         })
         .catch((err) => {
             let message = err;
-            socket.emit("log",{log:message, type:"error"});
+            Util.api.sendLog(socket, message, Util.api.LogType.error);
         })
 }
 
@@ -53,36 +45,28 @@ function handleStreamStatus(socket, data) {
     DatabaseAccess.find.channelByUsername(username)
         .then((channelData) => {
             if (channelData == null) {
-                socket.emit("api-message", {
-                    target: data.ack,
-                    ack: "web-api",
-                    type: "message",
-                    package: {
-                        prompt: "streamStatus-reply",
-                        data: {name: "UNKNOWN", code: 3},
-                        message: "Not Found"
-                    }
-                });
+                let pack = {
+                    prompt: "streamStatus-reply",
+                    data: {name: "UNKNOWN", code: 3},
+                    message: "Not Found"
+                };
+                Util.api.sendMessage(socket, data.ack, "web-api", pack);
                 return;
             }
-            let channelStatus = ChannelStatus.toString(channelData.channelStatus);
-            socket.emit("api-message", {
-                target: data.ack,
-                ack: "web-api",
-                type: "message",
-                package: {
-                    prompt: "streamStatus-reply",
-                    data: {
-                        name: channelStatus,
-                        code: channelData.channelStatus
-                    },
-                    message: "Ok"
-                }
-            });
+            let channelStatus = Util.ChannelStatus[channelData.channelStatus];
+            let pack = {
+                prompt: "streamStatus-reply",
+                data: {
+                    name: channelStatus,
+                    code: channelData.channelStatus
+                },
+                message: "Ok"
+            };
+            Util.api.sendMessage(socket, data.ack, "web-api", pack);
         })
         .catch((err) => {
             let message = err.toString();
-            socket.emit("log",{log:message, type:"error"});
+            Util.api.sendLog(socket, message, Util.api.LogType.error);
         });
 }
 
@@ -91,50 +75,41 @@ function handleStreamStats(socket, data) {
     DatabaseAccess.find.channelByUsername(username)
         .then((channelData) => {
             if (channelData == null) {
-                socket.emit("api-message", {
-                    target: data.ack,
-                    ack: "web-api",
-                    type: "message",
-                    package: {
-                        prompt: "streamStats-reply",
-                        data: {
-                                streamTitle: "",
-                                streamDescription: "",
-                                streamTags: [],
-                                streamDirectory: "",
-                                channelOwner: "",
-                                channelStatus: {name: "UNKNOWN", code: 3}
-                            },
-                        message: "Not Found"
-                    }
-                });
-                return;
-            }
-            let channelStatus = ChannelStatus.toString(channelData.channelStatus);
-            socket.emit("api-message", {
-                target: data.ack,
-                ack: "web-api",
-                type: "message",
-                package: {
+                let pack = {
                     prompt: "streamStats-reply",
                     data: {
-                        streamTitle: channelData.title,
-                        streamDescription: channelData.description,
-                        streamTags: channelData.tags,
-                        streamDirectory: channelData.directory,
-                        channelOwner: channelData.username,
-                        channelStatus: {
-                            name: channelStatus,
-                            code: channelData.channelStatus
-                        }
-                    },
-                    message: "Ok"
+                        streamTitle: "",
+                        streamDescription: "",
+                        streamTags: [],
+                        streamDirectory: "",
+                        channelOwner: "",
+                        channelStatus: {name: "UNKNOWN", code: 3}
+                        },
+                    message: "Not Found"
                 }
-            });
+                Util.api.sendMessage(socket, data.ack, "web-api", pack);
+                return;
+            }
+            let channelStatus = Util.ChannelStatus[channelData.channelStatus];
+            let pack = {
+                prompt: "streamStats-reply",
+                data: {
+                    streamTitle: channelData.title,
+                    streamDescription: channelData.description,
+                    streamTags: channelData.tags,
+                    streamDirectory: channelData.directory,
+                    channelOwner: channelData.username,
+                    channelStatus: {
+                        name: channelStatus,
+                        code: channelData.channelStatus
+                    }},
+                message: "Ok"
+            };
+            Util.api.sendMessage(socket, data.ack, "web-api", pack);
         })
         .catch((err) => {
             let message = err.toString();
-            socket.emit("log",{log:message, type:"error"});
+            Util.api.sendLog(socket, message, Util.api.LogType.error);
         });
 }
 
@@ -146,7 +121,7 @@ function handleIncrementViewers(socket, data){
         .then()
         .catch((err) => {
             let message = err.toString();
-            socket.emit("log",{log:message, type:"error"});
+            Util.api.sendLog(socket, message, Util.api.LogType.error);
         });
 }
 
@@ -157,7 +132,7 @@ function handleSetViewerCount(socket, data){
         .then()
         .catch((err) => {
             let message = err.toString();
-            socket.emit("log",{log:message, type:"error"});
+            Util.api.sendLog(socket, message, Util.api.LogType.error);
         });
 }
 

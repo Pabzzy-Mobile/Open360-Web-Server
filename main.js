@@ -41,7 +41,7 @@ passport.use('local', new LocalStrategy(
                  });
               }
 
-              let cryptography = Util.saltPassword(password, userData.salt);
+              let cryptography = Util.cryptography.saltPassword(password, userData.salt);
 
               if (userData.password !== cryptography.password) {
                  return cb(null, false, {
@@ -163,17 +163,17 @@ app.get('/auth/logout', function (req, res) {
 //    HTTPResponses.auth.handleStreamKeyCheckPOST(req, res);
 //})
 
-app.post('/auth/nsk', Util.IsLoggedIn, function (req, res) {
+app.post('/auth/nsk', Util.cryptography.IsLoggedIn, function (req, res) {
     HTTPResponses.auth.handleNewStreamKeyPOST(req, res);
 })
 
 // DASHBOARD AND SETTINGS REQUESTS
 
-app.get('/user/dashboard', Util.IsLoggedIn, function (req, res) {
+app.get('/user/dashboard', Util.cryptography.IsLoggedIn, function (req, res) {
     HTTPResponses.dashboard.handleDashboardGET(req, res);
 });
 
-app.post('/user/dashboard', Util.IsLoggedIn, function (req, res) {
+app.post('/user/dashboard', Util.cryptography.IsLoggedIn, function (req, res) {
     HTTPResponses.dashboard.handleDashboardPOST(req, res);
 });
 
@@ -229,7 +229,7 @@ socket.on("connect", function (){
 });
 
 socket.on("web-api", (data) => {
-    if (data.type == "question"){
+    if (data.type == Util.api.APIMessageType.question){
         switch (data.package.prompt){
             case "checkKeyExists":
                 API.channel.handleCheckKeyExists(socket, data);
@@ -253,7 +253,7 @@ socket.on("web-api", (data) => {
                 break;
         }
     }
-    if (data.type == "message"){
+    if (data.type == Util.api.APIMessageType.message){
         switch (data.package.prompt){
             case "setOnline":
                 API.channel.handleSetChannelOnline(socket, data);

@@ -1,5 +1,5 @@
 // Require the other util module
-const {generateString} = require("../util.js");
+const {generateString} = require("open360-util");
 // Require other database files
 const {userAuthExists, channelStreamKeyExists} = require("./find.js");
 //let write = require("./write.js");

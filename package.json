@@ -29,13 +29,14 @@
     "connect-redis": "^5.0.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "mongodb": "^3.6.2",
+    "mongodb": "^3.6.3",
     "nunjucks": "^3.2.2",
+    "open360-util": "^0.1.2",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "redis": "^3.0.2",
-    "socket.io-client": "^3.0.1",
-    "video.js": "^7.10.1",
+    "socket.io-client": "^3.0.3",
+    "video.js": "^7.10.2",
     "videojs-vr": "^1.7.1"
   }
 }

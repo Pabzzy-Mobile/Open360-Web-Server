@@ -1,6 +1,6 @@
 const DatabaseAccess = require('../database/');
 const http = require('http');
-const {ChannelStatus} = require('../util.js');
+const {ChannelStatus} = require('open360-util');
 
 // VIDEO DOWNSTREAM RESPONSES
 

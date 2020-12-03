@@ -1,5 +1,5 @@
 // Require the util module
-const {UserData, UserDataTypes, ChannelData, ChannelModule, ChannelStatus, Settings} = require("../util.js");
+const {UserData, UserDataTypes, ChannelData, ChannelModule, ChannelStatus, Settings} = require("open360-util");
 // Require other database files
 // const util = require("./util.js");
 const {insertDocOne, updateDocOne, deleteDocOne} = require("./database.js");
@@ -16,7 +16,7 @@ const {userAuthGetActive} = require("./find.js");
  */
 function addUserAllInfo(userData){
     return new Promise((resolve, reject) => {
-        if (!userData.type === UserDataTypes.ALL_INFO) {
+        if (!userData.type == UserDataTypes.ALL_INFO) {
             reject(new Error("User was not of type 'ALL_INFO'"));
             return;
         }
@@ -40,7 +40,7 @@ function addUserAllInfo(userData){
  */
 function addUserDetails (userData){
     return new Promise((resolve, reject) => {
-        if (!userData.type === UserDataTypes.JUST_DETAILS) {
+        if (!userData.type == UserDataTypes.JUST_DETAILS) {
             reject(new Error("User was not of type 'JUST_DETAILS'"));
             return;
         }
@@ -60,7 +60,7 @@ function addUserDetails (userData){
  */
 function addUserAuth (userData){
     return new Promise((resolve, reject) => {
-        if (!userData.type === UserDataTypes.JUST_AUTH) {
+        if (!userData.type == UserDataTypes.JUST_AUTH) {
             reject(new Error("User was not of type 'JUST_AUTH'"));
             return;
         }
@@ -80,7 +80,7 @@ function addUserAuth (userData){
  */
 function updateUserAuth (userData){
     return new Promise((resolve, reject) => {
-        if (!userData.type === UserDataTypes.JUST_AUTH) {
+        if (!userData.type == UserDataTypes.JUST_AUTH) {
             reject(new Error("User was not of type 'JUST_AUTH'"));
         }
         // Set the filter

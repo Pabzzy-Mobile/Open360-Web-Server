@@ -1,5 +1,5 @@
 const DatabaseAccess = require('../database/');
-const {ChannelStatus} = require('../util.js');
+const {ChannelStatus} = require('open360-util');
 
 // CHANNEL PAGES RESPONSES
 

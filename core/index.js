@@ -1,5 +1,5 @@
 console.log("Loading Util Module");
-let Util = require("./util.js");
+let Util = require("open360-util");
 console.log("Loading Database Module");
 let DatabaseAccess = require("./database/");
 console.log("Loading HTTP Responses Module");

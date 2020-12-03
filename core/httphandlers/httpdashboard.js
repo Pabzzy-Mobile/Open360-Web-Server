@@ -1,5 +1,5 @@
 const DatabaseAccess = require('../database/');
-const {Settings, SettingsType} = require('../util.js');
+const {Settings, SettingsType} = require('open360-util');
 
 // DASHBOARD RESPONSES
 

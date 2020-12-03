@@ -1,4 +1,4 @@
-const Util = require("./util.js");
+const Util = require("open360-util");
 const DatabaseAccess = require("./database/");
 
 // Define this object's info

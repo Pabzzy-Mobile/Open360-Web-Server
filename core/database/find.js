@@ -1,5 +1,5 @@
 // Require the util module
-const {UserData, UserDataTypes, ChannelData, ChannelStatus} = require("../util.js");
+const {UserData, UserDataTypes, ChannelData, ChannelStatus} = require("open360-util");
 // Require other database files
 //const util = require("./util.js");
 const {retrieveDocOne, retrieveDocManyAll, retrieveDocManyLimit} = require("./database.js");

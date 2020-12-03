@@ -1,5 +1,5 @@
 const DatabaseAccess = require('../database/');
-const {UserData, UserDataTypes, saltPassword, ChannelStatus, ChannelData, NotAllowedUsernames, IsEmail} = require('../util.js');
+const {UserData, UserDataTypes, saltPassword, ChannelStatus, ChannelData, NotAllowedUsernames, IsEmail} = require('open360-util');
 
 // AUTHENTICATION RESPONSES
 
