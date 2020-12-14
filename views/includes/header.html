@@ -1,5 +1,11 @@
 <div class="header">
-    <a class="header-home" href="/"> <img src="/public/assets/icons/StampTVBright.png" alt="Home" /> </a>
+    <a class="header-home" href="/"> <img src="/public/assets/icons/StampTVBright.png" alt="Home" /> <h1>Stamp.TV</h1> </a>
+    <div class="header-search">
+        <div class="search-bar">
+            <input class="search-box"></input>
+            <a class="search-button" href="#" onclick="return false;" ><img src="/public/assets/uisheet/search.png" /></a>
+        </div>
+    </div>
     <div class="header-profile">
     {% if user %}
         <a class="header-dashboard-button" href="/user/dashboard/" title="Access Dashboard">

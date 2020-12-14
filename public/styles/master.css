@@ -66,6 +66,8 @@ body {
 }
 
 .header {
+  display: flex;
+  flex-direction: row;
   height: 50px;
   background: #23272A;
   position: fixed;
@@ -75,23 +77,69 @@ body {
   box-shadow: rgba(0, 0, 52, 0.3) 0px 1px 2px 0px, rgba(0, 0, 52, 0.3) 0px 0px 2px 0px;
 }
 .header .header-home {
-  font-size: 32px;
+  font-size: 22px;
+  flex: 1 1 60px;
+  text-decoration: none;
+}
+.header .header-home h1 {
+  display: inline-block;
+  text-decoration: none;
 }
 .header .header-home img {
   height: 32px;
+  display: inline-block;
   margin: 6px 10px;
+}
+.header .header-search {
+  position: relative;
+  background: #2C2F33;
+  border-radius: 8px;
+  border: #748386 solid 1px;
+  padding: 6px;
+  flex: 3 1 200px;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+}
+.header .header-search .search-bar {
+  display: flex;
+  flex-direction: row;
+  align-content: center;
+}
+.header .header-search .search-bar .search-box {
+  font-size: 32px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  flex: 1 0 60px;
+}
+.header .header-search .search-bar .search-button {
+  position: relative;
+  float: right;
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
+  padding: 4px;
+  flex: 0 1 0;
+}
+.header .header-search .search-bar .search-button:hover {
+  background: #748386;
+}
+.header .header-search .search-bar .search-button img {
+  height: 100%;
 }
 .header .header-profile {
   float: right;
   display: flex;
   flex-direction: row;
   align-items: center;
+  flex: 1 1 80px;
 }
 .header .header-profile > * {
   margin: 2px 6px;
 }
 .header .header-profile .header-dashboard-button {
-  flex: 1 1 0;
+  flex: 0 1 0;
   border-radius: 6px;
   padding: 4px;
   margin: 8px;

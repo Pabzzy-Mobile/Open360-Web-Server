@@ -17,6 +17,8 @@ body {
 $header-height: 50px;
 
 .header{
+  display: flex;
+  flex-direction: row;
   height: $header-height;
   background: $colour-dark;
   position: fixed;
@@ -28,11 +30,63 @@ $header-height: 50px;
               transparentize($colour-not-quite-black, 0.7) 0px 0px 2px 0px;
 
   .header-home{
-    font-size: 32px;
+    font-size: 22px;
+    flex: 1 1 60px;
+    text-decoration: none;
+
+    h1 {
+      display: inline-block;
+      text-decoration: none;
+    }
 
     img {
       height: 32px;
+      display: inline-block;
       margin: 6px 10px;
+    }
+  }
+
+  .header-search{
+    position: relative;
+    background: $colour-not-dark;
+    border-radius: 8px;
+    border: $colour-greyish solid 1px;
+    padding: 6px;
+    flex: 3 1 200px;
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+
+    .search-bar {
+      display: flex;
+      flex-direction: row;
+      align-content: center;
+
+      .search-box{
+        font-size: 32px;
+        background: none;
+        border: none;
+        border-radius: 0;
+        flex: 1 0 60px;
+      }
+
+      .search-button{
+        position: relative;
+        float: right;
+        height: 32px;
+        width: 32px;
+        border-radius: 6px;
+        padding: 4px;
+        flex: 0 1 0;
+
+        &:hover{
+          background: $colour-greyish;
+        }
+
+        img {
+          height: 100%;
+        }
+      }
     }
   }
 
@@ -41,13 +95,14 @@ $header-height: 50px;
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex: 1 1 80px;
 
     >*{
       margin: 2px 6px;
     }
 
     .header-dashboard-button{
-      flex: 1 1 0;
+      flex: 0 1 0;
       border-radius: 6px;
       padding: 4px;
       margin: 8px;
